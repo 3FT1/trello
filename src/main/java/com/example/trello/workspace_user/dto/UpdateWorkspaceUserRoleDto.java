@@ -5,13 +5,11 @@ import lombok.Getter;
 
 @Getter
 public class UpdateWorkspaceUserRoleDto {
-    private Long userId;
-    private Long workspaceId;
+    private Long workspaceUserId;
     private WorkspaceUserRole role;
 
-    public UpdateWorkspaceUserRoleDto(Long userId, Long workspaceId, WorkspaceUserRole role) {
-        this.userId = userId;
-        this.workspaceId = workspaceId;
+    public UpdateWorkspaceUserRoleDto(Long workspaceUserId, WorkspaceUserRole role) {
+        this.workspaceUserId = workspaceUserId;
         this.role = role;
     }
 }

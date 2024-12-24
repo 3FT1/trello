@@ -34,4 +34,13 @@ public class WorkspaceUserService {
 
         return WorkspaceUserResponseDto.toDto(workspaceUser);
     }
+
+    @Transactional
+    public String updateWorkspaceUserRole(Long workspaceId, Long workspaceUserId , WorkspaceUserRole role) {
+        WorkspaceUser findWorkspaceUser = workspaceUserRepository.findByIdOrElseThrow(workspaceUserId);
+
+        findWorkspaceUser.updateRole(role);
+
+        return "권한이 " + role + "로 변경되었습니다.";
+    }
 }

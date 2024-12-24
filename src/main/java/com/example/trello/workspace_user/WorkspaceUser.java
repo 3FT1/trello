@@ -15,6 +15,7 @@ public class WorkspaceUser {
     private Long id;
 
     @Column(name = "role")
+    @Enumerated(EnumType.STRING)
     private WorkspaceUserRole role;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,5 +32,9 @@ public class WorkspaceUser {
         this.role = role;
         this.user = user;
         this.workspace = workspace;
+    }
+
+    public void updateRole(WorkspaceUserRole role) {
+        this.role = role;
     }
 }
