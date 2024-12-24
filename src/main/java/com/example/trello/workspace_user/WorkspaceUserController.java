@@ -14,4 +14,12 @@ public class WorkspaceUserController {
 
     private final WorkspaceUserService workspaceUserService;
 
+    @PostMapping("/member-invite")
+    public ResponseEntity<WorkspaceUserResponseDto> inviteWorkspaceUser(@PathVariable Long workspaceId, @RequestBody WorkspaceUserRequestDto dto) {
+        WorkspaceUserResponseDto workspaceUserResponseDto = workspaceUserService.inviteWorkspaceUser(workspaceId, dto.getEmail());
+        return new ResponseEntity<>(workspaceUserResponseDto, HttpStatus.CREATED);
+    }
+
+//    @PatchMapping("/member-role")
+//    public ResponseEntity<>
 }

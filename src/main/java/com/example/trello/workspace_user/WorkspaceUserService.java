@@ -19,4 +19,19 @@ public class WorkspaceUserService {
     private final WorkSpaceRepository workSpaceRepository;
     private final UserRepository userRepository;
 
+    @Transactional
+    public WorkspaceUserResponseDto inviteWorkspaceUser(Long workspaceId, String email) {
+        User findUser = userRepository.findByEmailOrElseThrow(email);
+        Workspace findWorkspace = workSpaceRepository.findByIdOrElseThrow(workspaceId);
+
+        WorkspaceUser workspaceUser = WorkspaceUser.builder()
+                .user(findUser)
+                .workspace(findWorkspace)
+                .role(READ_ONLY)
+                .build();
+
+        workspaceUserRepository.save(workspaceUser);
+
+        return WorkspaceUserResponseDto.toDto(workspaceUser);
+    }
 }
