@@ -1,4 +1,4 @@
-package com.example.trello.workspace_user;
+package com.example.trello.workspace_member;
 
 import com.example.trello.user.User;
 import com.example.trello.workspace.Workspace;
@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Entity
 @Getter
-public class WorkspaceUser {
+public class WorkspaceMember {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,7 +16,7 @@ public class WorkspaceUser {
 
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
-    private WorkspaceUserRole role;
+    private WorkspaceMemberRole role;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
@@ -24,17 +24,17 @@ public class WorkspaceUser {
     @ManyToOne(fetch = FetchType.LAZY)
     private Workspace workspace;
 
-    public WorkspaceUser() {
+    public WorkspaceMember() {
     }
 
     @Builder
-    public WorkspaceUser(WorkspaceUserRole role, User user, Workspace workspace) {
+    public WorkspaceMember(WorkspaceMemberRole role, User user, Workspace workspace) {
         this.role = role;
         this.user = user;
         this.workspace = workspace;
     }
 
-    public void updateRole(WorkspaceUserRole role) {
+    public void updateRole(WorkspaceMemberRole role) {
         this.role = role;
     }
 }
