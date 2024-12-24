@@ -42,8 +42,17 @@ public class CardList {
                 .build();
     }
 
-    public void update(CardListRequestDto requestDto) {
+    public void update(CardListRequestDto requestDto,Integer sequence ) {
         this.title = requestDto.getTitle();
-        this.sequence = requestDto.getSequence();
+        this.sequence = sequence;
+
+    }
+
+    public void sortSequence(Integer sequence) {
+        this.sequence=sequence-1;
+    }
+
+    public void updateSequence(Integer sequence) {
+        this.sequence=sequence;
     }
 }

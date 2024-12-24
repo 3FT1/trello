@@ -13,10 +13,10 @@ public class CreateCardListRequestDto {
 
     private Long boardId;
 
-    public CardList toEntity(CreateCardListRequestDto requestDto, Board board) {
+    public CardList toEntity(CreateCardListRequestDto requestDto, Board board ,Integer sequence) {
         return CardList.builder()
                 .title(requestDto.title)
-                .sequence(requestDto.sequence)
+                .sequence(sequence)
                 .board(board)
                 .build();
     }
