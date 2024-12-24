@@ -18,8 +18,8 @@ public class CardList {
     @Column(name = "title")
     private String title;
 
-    @Column(name = "order")
-    private Integer order;
+    @Column(name = "sequence")
+    private Integer sequence;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Board board;
