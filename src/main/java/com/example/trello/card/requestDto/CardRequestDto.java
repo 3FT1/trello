@@ -3,6 +3,8 @@ package com.example.trello.card.requestDto;
 import jakarta.persistence.Column;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Getter
 public class CardRequestDto {
 
@@ -15,5 +17,8 @@ public class CardRequestDto {
     @Column(nullable = false)
     String description;
 
+    LocalDateTime startAt;
+
+    LocalDateTime endAt;
 
 }
