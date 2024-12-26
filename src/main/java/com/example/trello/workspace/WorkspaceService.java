@@ -2,13 +2,11 @@ package com.example.trello.workspace;
 
 import com.example.trello.user.User;
 import com.example.trello.user.UserRepository;
-import com.example.trello.workspace.dto.WorkspaceRequestDto;
 import com.example.trello.workspace.dto.WorkspaceResponseDto;
 
 
 import com.example.trello.workspace_member.WorkspaceMember;
 import com.example.trello.workspace_member.WorkspaceMemberRepository;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.trello.user.enums.Role.ADMIN;
-import static com.example.trello.workspace_member.WorkspaceMemberRole.READ_ONLY;
 import static com.example.trello.workspace_member.WorkspaceMemberRole.WORKSPACE;
 
 @Service
@@ -72,7 +69,7 @@ public class WorkspaceService {
 
     @Transactional(readOnly = true)
     public WorkspaceResponseDto viewWorkspace(Long workspaceId, Long loginUserId) {
-        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdOrElseThrow(loginUserId, workspaceId);
+        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, workspaceId);
 
         Workspace workspace = findWorkspaceMember.getWorkspace();
 
@@ -81,7 +78,7 @@ public class WorkspaceService {
 
     @Transactional
     public WorkspaceResponseDto updateWorkspace(Long workspaceId, String title, String description, Long loginUserId) {
-        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdOrElseThrow(loginUserId, workspaceId);
+        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, workspaceId);
 
         if (findWorkspaceMember.getRole() != WORKSPACE) {
             throw new RuntimeException("워크스페이스를 수정할 권한이 없습니다.");
@@ -96,7 +93,7 @@ public class WorkspaceService {
 
     @Transactional
     public void deleteWorkspace(Long workspaceId, Long loginUserId) {
-        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdOrElseThrow(loginUserId, workspaceId);
+        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, workspaceId);
 
         if (findWorkspaceMember.getRole() != WORKSPACE) {
             throw new RuntimeException("워크스페이스를 삭제할 권한이 없습니다.");

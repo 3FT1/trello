@@ -25,7 +25,7 @@ public class WorkspaceMemberService {
 
     @Transactional
     public WorkspaceMemberResponseDto inviteWorkspaceMember(Long workspaceId, String email, Long loginUserId) {
-        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdOrElseThrow(loginUserId, workspaceId);
+        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, workspaceId);
 
         if (findWorkspaceMember.getRole() != WORKSPACE) {
             throw new RuntimeException("멤버를 초대할 권한이 없습니다.");
@@ -47,7 +47,7 @@ public class WorkspaceMemberService {
 
     @Transactional
     public void updateWorkspaceMemberRole(Long workspaceId, Long workspaceMemberId , WorkspaceMemberRole role, Long loginUserId) {
-        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdOrElseThrow(loginUserId, workspaceId);
+        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, workspaceId);
 
         if (role == WORKSPACE && findWorkspaceMember.getUser().getRole() != ADMIN) {
             throw new RuntimeException("WORKSPACE 역할은 ADMIN 만 부여할 수 있습니다.");
