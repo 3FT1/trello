@@ -82,17 +82,30 @@ public class WorkspaceService {
     }
 
     @Transactional
-    public WorkspaceResponseDto updateWorkspace(Long workspaceId, String title, String description) {
-        Workspace findWorkspace = workSpaceRepository.findByIdOrElseThrow(workspaceId);
+    public WorkspaceResponseDto updateWorkspace(Long workspaceId, String title, String description, Long loginUserId) {
+        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdOrElseThrow(loginUserId, workspaceId);
 
-        findWorkspace.updateWorkspace(title, description);
+        if (findWorkspaceMember.getRole() != WORKSPACE) {
+            throw new RuntimeException("워크스페이스를 수정할 권한이 없습니다.");
+        }
 
-        return WorkspaceResponseDto.toDto(findWorkspace);
+        Workspace workspace = findWorkspaceMember.getWorkspace();
+
+        workspace.updateWorkspace(title, description);
+
+        return WorkspaceResponseDto.toDto(workspace);
     }
 
     @Transactional
-    public void deleteWorkspace(Long workspaceId) {
-        Workspace findWorkspace = workSpaceRepository.findByIdOrElseThrow(workspaceId);
-        workSpaceRepository.delete(findWorkspace);
+    public void deleteWorkspace(Long workspaceId, Long loginUserId) {
+        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdOrElseThrow(loginUserId, workspaceId);
+
+        if (findWorkspaceMember.getRole() != WORKSPACE) {
+            throw new RuntimeException("워크스페이스를 삭제할 권한이 없습니다.");
+        }
+
+        Workspace workspace = findWorkspaceMember.getWorkspace();
+
+        workSpaceRepository.delete(workspace);
     }
 }

@@ -36,14 +36,14 @@ public class WorkspaceController {
     }
 
     @PatchMapping("/{workspaceId}")
-    public ResponseEntity<WorkspaceResponseDto> updateWorkspace(@PathVariable Long workspaceId, @RequestBody UpdateWorkspaceRequestDto dto) {
-        WorkspaceResponseDto updatedWorkspaceResponseDto = workspaceService.updateWorkspace(workspaceId, dto.getTitle(), dto.getDescription());
+    public ResponseEntity<WorkspaceResponseDto> updateWorkspace(@PathVariable Long workspaceId, @RequestBody UpdateWorkspaceRequestDto dto, @SessionAttribute("id") Long loginUserId) {
+        WorkspaceResponseDto updatedWorkspaceResponseDto = workspaceService.updateWorkspace(workspaceId, dto.getTitle(), dto.getDescription(), loginUserId);
         return new ResponseEntity<>(updatedWorkspaceResponseDto, HttpStatus.OK);
     }
 
     @DeleteMapping("/{workspaceId}")
-    public ResponseEntity<Void> deleteWorkspace(@PathVariable Long workspaceId) {
-        workspaceService.deleteWorkspace(workspaceId);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public String deleteWorkspace(@PathVariable Long workspaceId, @SessionAttribute("id") Long loginUserId) {
+        workspaceService.deleteWorkspace(workspaceId, loginUserId);
+        return "워크스페이스가 정상적으로 삭제되었습니다.";
     }
 }

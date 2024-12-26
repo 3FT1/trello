@@ -10,12 +10,13 @@ import java.util.Optional;
 @Repository
 public interface WorkspaceMemberRepository extends JpaRepository<WorkspaceMember,Long> {
     List<WorkspaceMember> findByUser(User user);
+    Optional<WorkspaceMember> findByUserIdAndWorkspaceId(Long userId, Long workspaceId);
 
     default WorkspaceMember findByIdOrElseThrow(Long id){
         return findById(id).orElseThrow(() -> new RuntimeException());
     }
 
-//    default WorkspaceMember findByUserOrElseThrow(User user) {
-//        return findByUser(user).orElseThrow(() -> new RuntimeException());
-//    }
+    default WorkspaceMember findByUserIdOrElseThrow(Long userId, Long workspaceId) {
+        return findByUserIdAndWorkspaceId(userId, workspaceId).orElseThrow(() -> new RuntimeException());
+    }
 }
