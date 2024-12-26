@@ -48,12 +48,12 @@ public class CardController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
-//    @PostMapping("/getCards")
-//    public List<CardResponseDto> getCards(@PageableDefault(page = 1)Pageable pageable,
-//                                                          @RequestParam(required = false) String title,
-//                                                          @RequestParam(required = false) LocalDateTime startAt,
-//                                                          @RequestParam(required = false) LocalDateTime endAt) {
-//        return cardService.searchCards(title, startAt, endAt);
-//    }
+    @PostMapping("/getCards")
+    public List<CardResponseDto> getCards(@PageableDefault(page = 1)Pageable pageable,
+                                                          @RequestParam(required = false) String title,
+                                                          @RequestParam(required = false) LocalDateTime startAt,
+                                                          @RequestParam(required = false) LocalDateTime endAt) {
+        return cardService.searchCards(title, startAt, endAt);
+    }
 
 }
