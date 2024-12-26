@@ -27,8 +27,8 @@ public class CardController {
     private final CardService cardService;
 
     @PostMapping
-    public ResponseEntity<CardResponseDto> createdCard(@RequestBody CardRequestDto requestDto) {
-        CardResponseDto responseDto = cardService.createdCardService(requestDto);
+    public ResponseEntity<CardResponseDto> createdCard(@RequestBody CardRequestDto requestDto, HttpServletRequest servletRequest) {
+        CardResponseDto responseDto = cardService.createdCardService(requestDto, servletRequest);
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 

@@ -8,6 +8,8 @@ import com.example.trello.card.responsedto.CardResponseDto;
 import com.example.trello.card.requestDto.UpdateCardRequestDto;
 import com.example.trello.cardlist.CardList;
 import com.example.trello.cardlist.CardListRepository;
+import com.example.trello.user.User;
+import com.example.trello.user.UserRepository;
 import com.example.trello.workspace.Workspace;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -26,16 +28,19 @@ public class CardService {
     private final CardRepository cardRepository;
     private final CardListRepository cardListRepository;
     private final CardRepositoryCustomImpl cardRepositoryCustomImpl;
+    private final UserRepository userRepository;
 
     // 카드 생성
-    public CardResponseDto createdCardService(CardRequestDto requestDto) {
+    public CardResponseDto createdCardService(CardRequestDto requestDto, HttpServletRequest servletRequest) {
+
+        User user = (User) servletRequest.getSession().getAttribute("id");
 
         CardList cardList = findCardListByCardListId(requestDto.getCardListId());
 
-        Card card = new Card(requestDto.getTitle(), requestDto.getDescription(), cardList, requestDto.getStartAt(), requestDto.getEndAt());
+        Card card = new Card(requestDto.getTitle(), requestDto.getDescription(),user.getNickname(), requestDto.getStartAt(), requestDto.getEndAt(), cardList);
         cardRepository.save(card);
 
-        return new CardResponseDto(cardList.getId(), card.getId(), requestDto.getTitle(), requestDto.getDescription(), requestDto.getStartAt(), requestDto.getEndAt());
+        return new CardResponseDto(cardList.getId(), card.getId(), requestDto.getTitle(), requestDto.getDescription(),user.getNickname(), requestDto.getStartAt(), requestDto.getEndAt());
     }
 
     //카드 업데이트
@@ -48,7 +53,7 @@ public class CardService {
 
         cardRepository.save(card);
 
-        return new CardResponseDto(cardList.getId(), card.getId(), requestDto.getTitle(), requestDto.getDescription(), requestDto.getStartAt(), requestDto.getEndAt());
+        return new CardResponseDto(cardList.getId(), card.getId(), requestDto.getTitle(), requestDto.getDescription(), card.getNikeName(),requestDto.getStartAt(), requestDto.getEndAt());
     }
 
     // 카드 삭제
@@ -61,7 +66,7 @@ public class CardService {
     // 카드 단건 조회
     public CardResponseDto findCardById(Long cardsId) {
         Card card = cardRepository.findByIdOrElseThrow(cardsId);
-        return new CardResponseDto(card.getCardList().getId(), card.getId(), card.getTitle(), card.getDescription(), card.getStartAt(),card.getEndAt());
+        return new CardResponseDto(card.getCardList().getId(), card.getId(), card.getTitle(), card.getDescription(), card.getNikeName(), card.getStartAt(),card.getEndAt());
     }
 
     // 카드 다건 조회(조건 O)
@@ -79,6 +84,7 @@ public class CardService {
                         card.getId(),
                         card.getTitle(),
                         card.getDescription(),
+                        card.getNikeName(),
                         card.getStartAt(),
                         card.getEndAt()
                 ))

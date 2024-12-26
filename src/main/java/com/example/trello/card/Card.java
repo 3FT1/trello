@@ -33,6 +33,9 @@ public class Card {
     @Column(name = "image")
     private String image;
 
+    @Column(name = "userName")
+    private String nikeName;
+
     @Column(name = "start_at")
     private LocalDate startAt;
 
@@ -45,12 +48,13 @@ public class Card {
     @OneToMany(mappedBy = "card",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Comment> comments;
 
-    public Card(String title, String description, CardList cardList, LocalDate startAt, LocalDate endAt) {
+    public Card(String title, String description, String nikeName, LocalDate startAt, LocalDate endAt,CardList cardList) {
         this.title = title;
         this.description = description;
-        this.cardList = cardList;
+        this.nikeName = nikeName;
         this.startAt = startAt;
         this.endAt = endAt;
+        this.cardList = cardList;
     }
 
     public void updateCard(CardList cardList, String title, String description, LocalDate startAt, LocalDate endAt) {

@@ -19,6 +19,8 @@ public class CardResponseDto {
 
     private String description;
 
+    private String nikeName;
+
     @JsonFormat(pattern = "yyyy-MM-dd")
     LocalDate startAt;
 
@@ -26,11 +28,12 @@ public class CardResponseDto {
     LocalDate endAt;
 
 
-    public CardResponseDto(Long cardListId, Long cardId, String title, String description, LocalDate startAt, LocalDate endAt) {
+    public CardResponseDto(Long cardListId, Long cardId, String title, String description, String nikeName, LocalDate startAt, LocalDate endAt) {
         this.cardListId = cardListId;
         this.cardId = cardId;
         this.title = title;
         this.description = description;
+        this.nikeName = nikeName;
         this.startAt = startAt;
         this.endAt =endAt;
     }
