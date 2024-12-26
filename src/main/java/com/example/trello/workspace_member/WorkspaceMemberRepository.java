@@ -11,6 +11,7 @@ import java.util.Optional;
 public interface WorkspaceMemberRepository extends JpaRepository<WorkspaceMember,Long> {
     List<WorkspaceMember> findByUser(User user);
     Optional<WorkspaceMember> findByUserIdAndWorkspaceId(Long userId, Long workspaceId);
+    Boolean existsByUserIdAndWorkspaceId(Long userId, Long workspaceId);
 
     default WorkspaceMember findByIdOrElseThrow(Long id){
         return findById(id).orElseThrow(() -> new RuntimeException());

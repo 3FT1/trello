@@ -40,4 +40,17 @@ public class BoardService {
         return BoardResponseDto.toDto(board);
     }
 
+    @Transactional(readOnly = true)
+    public List<BoardResponseDto> viewAllBoard(Long workspaceId, Long loginUserId) {
+        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(loginUserId, workspaceId)) {
+            throw new RuntimeException("해당 워크스페이스의 멤버가 아닙니다.");
+        }
+
+        List<Board> findBoardList = boardRepository.findAllByWorkspaceId(workspaceId);
+
+        return findBoardList
+                .stream()
+                .map(BoardResponseDto::toDto)
+                .toList();
+    }
 }
