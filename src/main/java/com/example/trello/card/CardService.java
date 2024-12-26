@@ -2,6 +2,7 @@ package com.example.trello.card;
 
 import com.example.trello.board.Board;
 import com.example.trello.card.cardrepository.CardRepository;
+import com.example.trello.card.cardrepository.CardRepositoryCustomImpl;
 import com.example.trello.card.requestDto.CardRequestDto;
 import com.example.trello.card.responsedto.CardResponseDto;
 import com.example.trello.card.requestDto.UpdateCardRequestDto;
@@ -13,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +25,7 @@ public class CardService {
 
     private final CardRepository cardRepository;
     private final CardListRepository cardListRepository;
+    private final CardRepositoryCustomImpl cardRepositoryCustomImpl;
 
     // 카드 생성
     public CardResponseDto createdCardService(CardRequestDto requestDto) {
@@ -58,6 +62,27 @@ public class CardService {
     public CardResponseDto findCardById(Long cardsId) {
         Card card = cardRepository.findByIdOrElseThrow(cardsId);
         return new CardResponseDto(card.getCardList().getId(), card.getId(), card.getTitle(), card.getDescription(), card.getStartAt(),card.getEndAt());
+    }
+
+    // 카드 다건 조회(조건 O)
+    public List<CardResponseDto> searchCards(Long cardListId, LocalDate startAt, LocalDate endAt, Long boardId) {
+
+        List<Card> cards = cardRepository.searchCard(cardListId, startAt, endAt, boardId);
+
+        return convertToDto(cards);
+    }
+
+    private List<CardResponseDto> convertToDto(List<Card> cards) {
+        return cards.stream()
+                .map(card -> new CardResponseDto(
+                        card.getCardList().getId(),
+                        card.getId(),
+                        card.getTitle(),
+                        card.getDescription(),
+                        card.getStartAt(),
+                        card.getEndAt()
+                ))
+                .toList();
     }
 
 

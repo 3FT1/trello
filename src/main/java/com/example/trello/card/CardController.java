@@ -7,11 +7,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.query.Page;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.awt.print.Pageable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -48,12 +50,12 @@ public class CardController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
-    @PostMapping("/getCards")
-    public List<CardResponseDto> getCards(@PageableDefault(page = 1)Pageable pageable,
-                                                          @RequestParam(required = false) String title,
-                                                          @RequestParam(required = false) LocalDateTime startAt,
-                                                          @RequestParam(required = false) LocalDateTime endAt) {
-        return cardService.searchCards(title, startAt, endAt);
+    @GetMapping("/getCards")
+    public List<CardResponseDto> getCards(
+                                                          @RequestParam(required = false) Long cardListId,
+                                                          @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
+                                                          @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
+                                          @RequestParam(required = false) Long boardId) {
+        return cardService.searchCards(cardListId, startAt, endAt, boardId);
     }
-
 }
