@@ -1,5 +1,6 @@
 package com.example.trello.workspace;
 
+import com.example.trello.workspace.dto.UpdateWorkspaceRequestDto;
 import com.example.trello.workspace.dto.WorkspaceRequestDto;
 import com.example.trello.workspace.dto.WorkspaceResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,9 @@ public class WorkspaceController {
         return new ResponseEntity<>(findWorkspaceResponseDto, HttpStatus.OK);
     }
 
-//    @PatchMapping("/{workspaceId}")
-//    public ResponseEntity<>
+    @PatchMapping("/{workspaceId}")
+    public ResponseEntity<WorkspaceResponseDto> updateWorkspace(@PathVariable Long workspaceId, @RequestBody UpdateWorkspaceRequestDto dto) {
+        WorkspaceResponseDto updatedWorkspaceResponseDto = workspaceService.updateWorkspace(workspaceId, dto.getTitle(), dto.getDescription());
+        return new ResponseEntity<>(updatedWorkspaceResponseDto, HttpStatus.OK);
+    }
 }

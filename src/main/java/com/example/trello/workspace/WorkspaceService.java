@@ -59,4 +59,13 @@ public class WorkspaceService {
 
         return WorkspaceResponseDto.toDto(findWorkspace);
     }
+
+    @Transactional
+    public WorkspaceResponseDto updateWorkspace(Long workspaceId, String title, String description) {
+        Workspace findWorkspace = workSpaceRepository.findByIdOrElseThrow(workspaceId);
+
+        findWorkspace.updateWorkspace(title, description);
+
+        return WorkspaceResponseDto.toDto(findWorkspace);
+    }
 }

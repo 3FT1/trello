@@ -35,4 +35,9 @@ public class Workspace {
         this.title = title;
         this.description = description;
     }
+
+    public void updateWorkspace(String title, String description) {
+        this.title = title;
+        this.description = description;
+    }
 }
