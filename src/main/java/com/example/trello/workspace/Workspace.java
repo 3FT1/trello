@@ -3,6 +3,7 @@ package com.example.trello.workspace;
 import com.example.trello.board.Board;
 import com.example.trello.user.User;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
@@ -25,4 +26,13 @@ public class Workspace {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
+
+    public Workspace() {
+    }
+
+    @Builder
+    public Workspace(String title, String description) {
+        this.title = title;
+        this.description = description;
+    }
 }
