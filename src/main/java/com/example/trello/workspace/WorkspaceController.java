@@ -17,8 +17,8 @@ public class WorkspaceController {
     private final WorkspaceService workspaceService;
 
     @PostMapping
-    public ResponseEntity<WorkspaceResponseDto> createWorkspace(@RequestBody WorkspaceRequestDto dto) {
-        WorkspaceResponseDto createdWorkspaceResponseDto = workspaceService.createWorkspace(dto.getTitle(), dto.getDescription());
+    public ResponseEntity<WorkspaceResponseDto> createWorkspace(@RequestBody WorkspaceRequestDto dto, @SessionAttribute("id") Long loginUserId) {
+        WorkspaceResponseDto createdWorkspaceResponseDto = workspaceService.createWorkspace(dto.getTitle(), dto.getDescription(), loginUserId);
 
         return new ResponseEntity<>(createdWorkspaceResponseDto, HttpStatus.CREATED);
     }

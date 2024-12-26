@@ -35,9 +35,10 @@ public class Workspace {
     }
 
     @Builder
-    public Workspace(String title, String description) {
+    public Workspace(String title, String description, User user) {
         this.title = title;
         this.description = description;
+        this.user = user;
     }
 
     public void updateWorkspace(String title, String description) {

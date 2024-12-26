@@ -17,6 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.trello.user.enums.Role.ADMIN;
+import static com.example.trello.workspace_member.WorkspaceMemberRole.READ_ONLY;
+import static com.example.trello.workspace_member.WorkspaceMemberRole.WORKSPACE;
+
 @Service
 @RequiredArgsConstructor
 public class WorkspaceService {
@@ -24,15 +28,28 @@ public class WorkspaceService {
     private final WorkSpaceRepository workSpaceRepository;
     private final WorkspaceMemberRepository workspaceMemberRepository;
 
-    // todo : Admin 권한을 가진 유저만 생성가능하게
     @Transactional
-    public WorkspaceResponseDto createWorkspace(String title, String description) {
+    public WorkspaceResponseDto createWorkspace(String title, String description, Long loginUserId) {
+        User loginUser = userRepository.findByIdOrElseThrow(loginUserId);
+
+        if (loginUser.getRole() != ADMIN) {
+            throw new RuntimeException("권한이 ADMIN 인 유저만 워크스페이스 생성이 가능합니다.");
+        }
+
         Workspace workspace = Workspace.builder()
                 .title(title)
                 .description(description)
+                .user(loginUser)
+                .build();
+
+        WorkspaceMember workspaceMember = WorkspaceMember.builder()
+                .user(loginUser)
+                .workspace(workspace)
+                .role(WORKSPACE)
                 .build();
 
         workSpaceRepository.save(workspace);
+        workspaceMemberRepository.save(workspaceMember);
 
         return WorkspaceResponseDto.toDto(workspace);
     }
