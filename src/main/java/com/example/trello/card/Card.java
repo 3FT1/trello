@@ -1,19 +1,20 @@
 package com.example.trello.card;
 
+import com.example.trello.card.requestDto.UpdateCardRequestDto;
 import com.example.trello.cardlist.CardList;
 import com.example.trello.comment.Comment;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Getter
+@DynamicInsert
 @RequiredArgsConstructor
 public class Card {
 
@@ -27,18 +28,15 @@ public class Card {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "sequence")
-    private Integer sequence;
-
     @Column(name = "image")
     private String image;
 
     @Column(name = "start_at")
-    @CreatedDate
+    @Pattern(regexp = "yyyy-mm-dd")
     private LocalDateTime startAt;
 
     @Column(name = "end_at")
-    @LastModifiedDate
+    @Pattern(regexp = "yyyy-mm-dd")
     private LocalDateTime endAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -53,6 +51,7 @@ public class Card {
         this.cardList = cardList;
     }
 
-
-
+//    public void updateCard(UpdateCardRequestDto requestDto) {
+//        this.cardList.getId() = requestDto.getCardListId();
+//    }
 }
