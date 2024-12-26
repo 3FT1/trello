@@ -21,4 +21,10 @@ public class WorkspaceController {
 
         return new ResponseEntity<>(createdWorkspaceResponseDto, HttpStatus.CREATED);
     }
+
+    @GetMapping
+    public ResponseEntity<List<WorkspaceResponseDto>> viewAllWorkspace() {
+        List<WorkspaceResponseDto> workspaceResponseDtoList = workspaceService.viewAllWorkspace();
+        return new ResponseEntity<>(workspaceResponseDtoList, HttpStatus.OK);
+    }
 }

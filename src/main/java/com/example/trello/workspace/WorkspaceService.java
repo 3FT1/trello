@@ -36,4 +36,20 @@ public class WorkspaceService {
 
         return WorkspaceResponseDto.toDto(workspace);
     }
+
+    @Transactional(readOnly = true)
+    public List<WorkspaceResponseDto> viewAllWorkspace() {
+        User findUser = userRepository.findByIdOrElseThrow(1L);
+        List<WorkspaceMember> WorkspaceMemberListByUser = workspaceMemberRepository.findByUser(findUser);
+
+        List<Workspace> workspaceList = new ArrayList<>();
+        for (WorkspaceMember workspaceMember : WorkspaceMemberListByUser) {
+            workspaceList.add(workspaceMember.getWorkspace());
+        }
+
+        return workspaceList
+                .stream()
+                .map(WorkspaceResponseDto::toDto)
+                .toList();
+    }
 }
