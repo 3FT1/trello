@@ -1,5 +1,6 @@
 package com.example.trello.card.responsedto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import lombok.Getter;
 
@@ -9,16 +10,18 @@ import java.time.LocalDateTime;
 @Getter
 public class CardResponseDto {
 
-    Long cardListId;
+    private Long cardListId;
 
-    Long cardId;
+    private Long cardId;
 
-    String title;
+    private String title;
 
-    String description;
+    private String description;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     LocalDateTime startAt;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     LocalDateTime endAt;
 
 
