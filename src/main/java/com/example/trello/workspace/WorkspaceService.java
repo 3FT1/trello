@@ -72,13 +72,11 @@ public class WorkspaceService {
 
     @Transactional(readOnly = true)
     public WorkspaceResponseDto viewWorkspace(Long workspaceId, Long loginUserId) {
-        Workspace findWorkspace = workSpaceRepository.findByIdOrElseThrow(workspaceId);
+        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdOrElseThrow(loginUserId, workspaceId);
 
-        if (!loginUserId.equals(findWorkspace.getUser().getId())) {
-            throw new RuntimeException("조회할 권한이 없는 워크스페이스입니다.");
-        }
+        Workspace workspace = findWorkspaceMember.getWorkspace();
 
-        return WorkspaceResponseDto.toDto(findWorkspace);
+        return WorkspaceResponseDto.toDto(workspace);
     }
 
     @Transactional
