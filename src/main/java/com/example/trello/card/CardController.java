@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.awt.print.Pageable;
+import java.time.LocalDateTime;
 import java.util.List;
 
 //import static jdk.javadoc.internal.doclets.formats.html.markup.HtmlStyle.title;
@@ -23,28 +24,36 @@ public class CardController {
 
     private final CardService cardService;
 
-    public ResponseEntity<CardResponseDto> createdCard(CardRequestDto requestDto, HttpServletRequest servletRequest) {
-        CardResponseDto responseDto = cardService.createdCardService(requestDto, servletRequest);
+    @PostMapping
+    public ResponseEntity<CardResponseDto> createdCard(@RequestBody CardRequestDto requestDto) {
+        CardResponseDto responseDto = cardService.createdCardService(requestDto);
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
-//    @PostMapping("/{cardsId}")
-//    public ResponseEntity<CardResponseDto> updateCard(@PathVariable Long cardsId, UpdateCardRequestDto requestDto, HttpServletRequest servletRequest) {
-//        CardResponseDto responseDto = cardService.updateCardService(cardsId, requestDto, servletRequest);
-//        return new ResponseEntity<>(responseDto, HttpStatus.OK);
-//    }
+    @PatchMapping("/{cardsId}/updateCards")
+    public ResponseEntity<CardResponseDto> updateCard(@PathVariable Long cardsId, @RequestBody UpdateCardRequestDto requestDto) {
+        CardResponseDto responseDto = cardService.updateCardService(cardsId, requestDto);
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
 
-    @PostMapping("/{cardsId}")
+    @DeleteMapping("/{cardsId}")
     public ResponseEntity<String> deleteCard(@PathVariable Long cardsId) {
         cardService.deleteCardService(cardsId);
-        return ResponseEntity.ok().body("삭제 완료되었습니다");
+        return new ResponseEntity<>("삭제 완료되었습니다", HttpStatus.OK);
+    }
+
+    @GetMapping("/{cardsId}")
+    public ResponseEntity<CardResponseDto> findCard(@PathVariable Long cardsId) {
+        CardResponseDto responseDto = cardService.findCardById(cardsId);
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
 //    @PostMapping("/getCards")
-//    public ResponseEntity<List<CardResponseDto>> getCards(@PageableDefault(page = 1)Pageable pageable,
-//                                                          @RequestParam String title,
-//                                                          @RequestParam) {
-//
+//    public List<CardResponseDto> getCards(@PageableDefault(page = 1)Pageable pageable,
+//                                                          @RequestParam(required = false) String title,
+//                                                          @RequestParam(required = false) LocalDateTime startAt,
+//                                                          @RequestParam(required = false) LocalDateTime endAt) {
+//        return cardService.searchCards(title, startAt, endAt);
 //    }
 
 }

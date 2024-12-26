@@ -2,7 +2,6 @@ package com.example.trello.card;
 
 import com.example.trello.card.requestDto.UpdateCardRequestDto;
 import com.example.trello.card.responsedto.CardResponseDto;
-import com.example.trello.card.responsedto.UpdateCardResponseDto;
 import com.example.trello.cardlist.CardList;
 import com.example.trello.comment.Comment;
 import jakarta.persistence.*;
@@ -34,11 +33,9 @@ public class Card {
     private String image;
 
     @Column(name = "start_at")
-    @Pattern(regexp = "yyyy-mm-dd")
     private LocalDateTime startAt;
 
     @Column(name = "end_at")
-    @Pattern(regexp = "yyyy-mm-dd")
     private LocalDateTime endAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -47,17 +44,19 @@ public class Card {
     @OneToMany(mappedBy = "card",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Comment> comments;
 
-    public Card(String title, String description, CardList cardList) {
+    public Card(String title, String description, CardList cardList, LocalDateTime startAt, LocalDateTime endAt) {
         this.title = title;
         this.description = description;
         this.cardList = cardList;
+        this.startAt = startAt;
+        this.endAt = endAt;
     }
 
-//    public void updateCard(UpdateCardResponseDto updateCardResponseDto) {
-//        cardList = up
-//        title = requestDto.getTitle();
-//        description = requestDto.getDescription();
-//        startAt = requestDto.getStartAt();
-//        endAt = requestDto.getEndAt();
-//    }
+    public void updateCard(CardList cardList, String title, String description, LocalDateTime startAt, LocalDateTime endAt) {
+        this.cardList = cardList;
+        this.title = title;
+        this.description = description;
+        this.startAt = startAt;
+        this.endAt = endAt;
+    }
 }
