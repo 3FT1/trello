@@ -8,12 +8,14 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User,Long> {
+    default User findByIdOrElseThrow(Long userId){
+        return findById(userId).orElseThrow(()-> new RuntimeException());
+    }
+
     Optional<User> findByEmail(String email);
 
-    default User findByIdOrElseThrow(Long id){
-        return findById(id).orElseThrow(() -> new RuntimeException());
-    }
-    default User findByEmailOrElseThrow(String email){
-        return findByEmail(email).orElseThrow(() -> new RuntimeException());
+    default User findByEmailOrElseThrow(String email) {
+        return findByEmail(email).orElseThrow(()-> new RuntimeException());
     }
 }
+

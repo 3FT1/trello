@@ -33,4 +33,7 @@ public class WorkspaceController {
         WorkspaceResponseDto findWorkspaceResponseDto = workspaceService.viewWorkspace(workspaceId);
         return new ResponseEntity<>(findWorkspaceResponseDto, HttpStatus.OK);
     }
+
+//    @PatchMapping("/{workspaceId}")
+//    public ResponseEntity<>
 }
