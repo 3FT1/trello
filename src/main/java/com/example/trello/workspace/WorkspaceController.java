@@ -24,14 +24,14 @@ public class WorkspaceController {
     }
 
     @GetMapping
-    public ResponseEntity<List<WorkspaceResponseDto>> viewAllWorkspace() {
-        List<WorkspaceResponseDto> workspaceResponseDtoList = workspaceService.viewAllWorkspace();
+    public ResponseEntity<List<WorkspaceResponseDto>> viewAllWorkspace(@SessionAttribute("id") Long loginUserId) {
+        List<WorkspaceResponseDto> workspaceResponseDtoList = workspaceService.viewAllWorkspace(loginUserId);
         return new ResponseEntity<>(workspaceResponseDtoList, HttpStatus.OK);
     }
 
     @GetMapping("/{workspaceId}")
-    public ResponseEntity<WorkspaceResponseDto> viewWorkspace(@PathVariable Long workspaceId) {
-        WorkspaceResponseDto findWorkspaceResponseDto = workspaceService.viewWorkspace(workspaceId);
+    public ResponseEntity<WorkspaceResponseDto> viewWorkspace(@PathVariable Long workspaceId, @SessionAttribute("id") Long loginUserId) {
+        WorkspaceResponseDto findWorkspaceResponseDto = workspaceService.viewWorkspace(workspaceId, loginUserId);
         return new ResponseEntity<>(findWorkspaceResponseDto, HttpStatus.OK);
     }
 

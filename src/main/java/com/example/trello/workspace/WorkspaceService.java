@@ -55,8 +55,8 @@ public class WorkspaceService {
     }
 
     @Transactional(readOnly = true)
-    public List<WorkspaceResponseDto> viewAllWorkspace() {
-        User findUser = userRepository.findByIdOrElseThrow(1L);
+    public List<WorkspaceResponseDto> viewAllWorkspace(Long loginUserId) {
+        User findUser = userRepository.findByIdOrElseThrow(loginUserId);
         List<WorkspaceMember> WorkspaceMemberListByUser = workspaceMemberRepository.findByUser(findUser);
 
         List<Workspace> workspaceList = new ArrayList<>();
@@ -71,8 +71,12 @@ public class WorkspaceService {
     }
 
     @Transactional(readOnly = true)
-    public WorkspaceResponseDto viewWorkspace(Long workspaceId) {
+    public WorkspaceResponseDto viewWorkspace(Long workspaceId, Long loginUserId) {
         Workspace findWorkspace = workSpaceRepository.findByIdOrElseThrow(workspaceId);
+
+        if (!loginUserId.equals(findWorkspace.getUser().getId())) {
+            throw new RuntimeException("조회할 권한이 없는 워크스페이스입니다.");
+        }
 
         return WorkspaceResponseDto.toDto(findWorkspace);
     }
