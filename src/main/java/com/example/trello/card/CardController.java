@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.awt.print.Pageable;
 import java.util.List;
 
-import static jdk.javadoc.internal.doclets.formats.html.markup.HtmlStyle.title;
+//import static jdk.javadoc.internal.doclets.formats.html.markup.HtmlStyle.title;
 
 @RequiredArgsConstructor
 @RestController
@@ -28,11 +28,11 @@ public class CardController {
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
-    @PostMapping("/{cardsId}")
-    public ResponseEntity<CardResponseDto> updateCard(@PathVariable Long cardsId, UpdateCardRequestDto requestDto, HttpServletRequest servletRequest) {
-        CardResponseDto responseDto = cardService.updateCardService(cardsId, requestDto, servletRequest);
-        return new ResponseEntity<>(responseDto, HttpStatus.OK);
-    }
+//    @PostMapping("/{cardsId}")
+//    public ResponseEntity<CardResponseDto> updateCard(@PathVariable Long cardsId, UpdateCardRequestDto requestDto, HttpServletRequest servletRequest) {
+//        CardResponseDto responseDto = cardService.updateCardService(cardsId, requestDto, servletRequest);
+//        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+//    }
 
     @PostMapping("/{cardsId}")
     public ResponseEntity<String> deleteCard(@PathVariable Long cardsId) {
