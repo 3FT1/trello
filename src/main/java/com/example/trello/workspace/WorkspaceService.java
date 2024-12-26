@@ -52,4 +52,11 @@ public class WorkspaceService {
                 .map(WorkspaceResponseDto::toDto)
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    public WorkspaceResponseDto viewWorkspace(Long workspaceId) {
+        Workspace findWorkspace = workSpaceRepository.findByIdOrElseThrow(workspaceId);
+
+        return WorkspaceResponseDto.toDto(findWorkspace);
+    }
 }

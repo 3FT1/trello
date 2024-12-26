@@ -27,4 +27,10 @@ public class WorkspaceController {
         List<WorkspaceResponseDto> workspaceResponseDtoList = workspaceService.viewAllWorkspace();
         return new ResponseEntity<>(workspaceResponseDtoList, HttpStatus.OK);
     }
+
+    @GetMapping("/{workspaceId}")
+    public ResponseEntity<WorkspaceResponseDto> viewWorkspace(@PathVariable Long workspaceId) {
+        WorkspaceResponseDto findWorkspaceResponseDto = workspaceService.viewWorkspace(workspaceId);
+        return new ResponseEntity<>(findWorkspaceResponseDto, HttpStatus.OK);
+    }
 }
