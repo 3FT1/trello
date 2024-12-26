@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -33,10 +34,10 @@ public class Card {
     private String image;
 
     @Column(name = "start_at")
-    private LocalDateTime startAt;
+    private LocalDate startAt;
 
     @Column(name = "end_at")
-    private LocalDateTime endAt;
+    private LocalDate endAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private CardList cardList;
@@ -44,7 +45,7 @@ public class Card {
     @OneToMany(mappedBy = "card",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Comment> comments;
 
-    public Card(String title, String description, CardList cardList, LocalDateTime startAt, LocalDateTime endAt) {
+    public Card(String title, String description, CardList cardList, LocalDate startAt, LocalDate endAt) {
         this.title = title;
         this.description = description;
         this.cardList = cardList;
@@ -52,7 +53,7 @@ public class Card {
         this.endAt = endAt;
     }
 
-    public void updateCard(CardList cardList, String title, String description, LocalDateTime startAt, LocalDateTime endAt) {
+    public void updateCard(CardList cardList, String title, String description, LocalDate startAt, LocalDate endAt) {
         this.cardList = cardList;
         this.title = title;
         this.description = description;
