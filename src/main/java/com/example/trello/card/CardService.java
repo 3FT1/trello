@@ -5,6 +5,7 @@ import com.example.trello.card.cardrepository.CardRepository;
 import com.example.trello.card.requestDto.CardRequestDto;
 import com.example.trello.card.responsedto.CardResponseDto;
 import com.example.trello.card.requestDto.UpdateCardRequestDto;
+import com.example.trello.card.responsedto.UpdateCardResponseDto;
 import com.example.trello.cardlist.CardList;
 import com.example.trello.cardlist.CardListRepository;
 import com.example.trello.workspace.Workspace;
@@ -30,16 +31,20 @@ public class CardService {
         Card card = new Card(requestDto.getTitle(), requestDto.getDescription(), cardList);
         cardRepository.save(card);
 
-        return new CardResponseDto(cardList.getId(), card.getId(), requestDto.getTitle(), requestDto.getDescription());
+        return new CardResponseDto(cardList.getId(), card.getId(), requestDto.getTitle(), requestDto.getDescription(), requestDto.getStartAt(), requestDto.getEndAt());
     }
 
 //    //카드 업데이트
 //    public CardResponseDto updateCardService(Long cardId, UpdateCardRequestDto requestDto, HttpServletRequest servletRequest) {
 //        Card card = cardRepository.findByIdOrElseThrow(cardId);
+//
+//        CardList cardList = cardListRepository.findByIdOrElseThrow(requestDto.getCardListId());
+//
+//        UpdateCardResponseDto updateCardResponseDto = new UpdateCardResponseDto(cardList, requestDto.getTitle(), requestDto.getDescription(), requestDto.getStartAt(), requestDto.getEndAt());
+//
+//
 //        card.updateCard(requestDto);
 //        cardRepository.save(card);
-//
-//        CardList cardList = findCardListByCardListId(requestDto.getCardListId());
 //
 //        return new CardResponseDto(cardList.getId(), card.getId(), requestDto.getTitle(), requestDto.getDescription());
 //    }

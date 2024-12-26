@@ -1,6 +1,8 @@
 package com.example.trello.card;
 
 import com.example.trello.card.requestDto.UpdateCardRequestDto;
+import com.example.trello.card.responsedto.CardResponseDto;
+import com.example.trello.card.responsedto.UpdateCardResponseDto;
 import com.example.trello.cardlist.CardList;
 import com.example.trello.comment.Comment;
 import jakarta.persistence.*;
@@ -51,7 +53,11 @@ public class Card {
         this.cardList = cardList;
     }
 
-//    public void updateCard(UpdateCardRequestDto requestDto) {
-//        this.cardList.getId() = requestDto.getCardListId();
+//    public void updateCard(UpdateCardResponseDto updateCardResponseDto) {
+//        cardList = up
+//        title = requestDto.getTitle();
+//        description = requestDto.getDescription();
+//        startAt = requestDto.getStartAt();
+//        endAt = requestDto.getEndAt();
 //    }
 }
