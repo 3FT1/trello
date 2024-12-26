@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -17,15 +19,16 @@ public class CardRepositoryCustomImpl implements CardRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<Card> searchCard(Long cardListId, String title, String description) {
+    public List<Card> searchCard(Long cardListId, LocalDate startAt, LocalDate endAt, Long boardId) {
         QCard card = QCard.card;
 
         return queryFactory
                 .selectFrom(card)
                 .where(
                         eqCardListId(cardListId),
-                        eqTitle(title),
-                        eqDescription(description)
+                        eqStartAt(startAt),
+                        eqEndAt(endAt),
+                        eqBoard(boardId)
                 )
                 .fetch();
     }
@@ -34,11 +37,15 @@ public class CardRepositoryCustomImpl implements CardRepositoryCustom{
         return cardListId != null ? QCard.card.cardList.id.eq(cardListId) : null;
     }
 
-    private BooleanExpression eqTitle(String title) {
-        return title != null ? QCard.card.title.eq(title) : null;
+    private BooleanExpression eqStartAt(LocalDate startAt) {
+        return startAt != null ? QCard.card.startAt.eq(startAt) : null;
     }
 
-    private BooleanExpression eqDescription(String description) {
-        return description != null ? QCard.card.description.eq(description) : null;
+    private BooleanExpression eqEndAt(LocalDate endAt) {
+        return endAt != null ? QCard.card.endAt.eq(endAt) : null;
+    }
+
+    private BooleanExpression eqBoard(Long boardId) {
+        return boardId != null ? QCard.card.cardList.board.id.eq(boardId) : null;
     }
 }
