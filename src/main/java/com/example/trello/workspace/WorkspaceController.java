@@ -40,4 +40,10 @@ public class WorkspaceController {
         WorkspaceResponseDto updatedWorkspaceResponseDto = workspaceService.updateWorkspace(workspaceId, dto.getTitle(), dto.getDescription());
         return new ResponseEntity<>(updatedWorkspaceResponseDto, HttpStatus.OK);
     }
+
+    @DeleteMapping("/{workspaceId}")
+    public ResponseEntity<Void> deleteWorkspace(@PathVariable Long workspaceId) {
+        workspaceService.deleteWorkspace(workspaceId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

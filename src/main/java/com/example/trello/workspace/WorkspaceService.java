@@ -68,4 +68,10 @@ public class WorkspaceService {
 
         return WorkspaceResponseDto.toDto(findWorkspace);
     }
+
+    @Transactional
+    public void deleteWorkspace(Long workspaceId) {
+        Workspace findWorkspace = workSpaceRepository.findByIdOrElseThrow(workspaceId);
+        workSpaceRepository.delete(findWorkspace);
+    }
 }

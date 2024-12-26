@@ -2,6 +2,7 @@ package com.example.trello.workspace;
 
 import com.example.trello.board.Board;
 import com.example.trello.user.User;
+import com.example.trello.workspace_member.WorkspaceMember;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,6 +24,9 @@ public class Workspace {
 
     @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Board> boards;
+
+    @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WorkspaceMember> workspaceMembers;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
