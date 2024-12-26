@@ -24,7 +24,7 @@ public class WorkspaceMemberService {
         User findUser = userRepository.findByEmailOrElseThrow(email);
         Workspace findWorkspace = workSpaceRepository.findByIdOrElseThrow(workspaceId);
 
-        WorkspaceMember workspaceMember = com.example.trello.workspace_member.WorkspaceMember.builder()
+        WorkspaceMember workspaceMember = WorkspaceMember.builder()
                 .user(findUser)
                 .workspace(findWorkspace)
                 .role(READ_ONLY)
