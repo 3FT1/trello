@@ -7,10 +7,7 @@ import com.example.trello.comment.Comment;
 import com.example.trello.workspace_member.WorkspaceMember;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDate;
@@ -54,6 +51,7 @@ public class Card {
 
 
 
+    @Builder
     public Card(String title, String description, WorkspaceMember workspaceMember, LocalDate startAt, LocalDate endAt,CardList cardList) {
         this.title = title;
         this.description = description;

@@ -49,7 +49,14 @@ public class CardService {
             throw new RuntimeException();
         }
 
-        Card card = new Card(requestDto.getTitle(), requestDto.getDescription(), workspaceMember, requestDto.getStartAt(), requestDto.getEndAt(), cardList);
+        Card card = Card.builder()
+                .title(requestDto.getTitle())
+                .description(requestDto.getDescription())
+                .workspaceMember(workspaceMember)
+                .startAt(requestDto.getStartAt())
+                .endAt(requestDto.getEndAt())
+                .cardList(cardList)
+                .build();
         cardRepository.save(card);
 
         return CardResponseDto.toDto(card);
