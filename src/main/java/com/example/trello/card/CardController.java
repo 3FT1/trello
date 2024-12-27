@@ -38,9 +38,9 @@ public class CardController {
         return new ResponseEntity<>("삭제 완료되었습니다", HttpStatus.OK);
     }
 
-    @GetMapping("/{cardsId}")
-    public ResponseEntity<CardResponseDto> findCard(@PathVariable Long cardsId) {
-        CardResponseDto responseDto = cardService.findCardById(cardsId);
+    @GetMapping("/{cardId}")
+    public ResponseEntity<CardResponseDto> findCard(@PathVariable Long cardId) {
+        CardResponseDto responseDto = cardService.findCardById(cardId);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 

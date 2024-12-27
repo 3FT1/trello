@@ -91,8 +91,8 @@ public class CardService {
     }
 
     // 카드 단건 조회
-    public CardResponseDto findCardById(Long cardsId) {
-        Card card = cardRepository.findByIdOrElseThrow(cardsId);
+    public CardResponseDto findCardById(Long cardId) {
+        Card card = cardRepository.findByIdOrElseThrow(cardId);
         return CardResponseDto.toDto(card);
     }
 
