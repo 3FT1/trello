@@ -3,6 +3,7 @@ package com.example.trello.comment;
 import com.example.trello.card.Card;
 import com.example.trello.card.cardrepository.CardRepository;
 import com.example.trello.comment.dto.request.CommentRequestDto;
+import com.example.trello.comment.dto.request.UpdateCommentRequestDto;
 import com.example.trello.comment.dto.response.CommentResponseDto;
 import com.example.trello.user.User;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,5 +31,23 @@ public class CommentService {
         commentRepository.save(comment);
 
         return new CommentResponseDto(comment.getId(), comment.getContent(), comment.getNikeName(), comment.getCard().getId(), comment.getUser().getId());
+    }
+
+    public CommentResponseDto updateComment(Long commentId, UpdateCommentRequestDto requestDto, HttpServletRequest servletRequest) {
+
+        User user = (User) servletRequest.getSession().getAttribute("id");
+
+        Comment comment = commentRepository.findByIdOrElseThrow(commentId);
+
+        if (!comment.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException();
+        }
+
+        comment.updateComment(requestDto.getContent());
+
+        commentRepository.save(comment);
+
+        return new CommentResponseDto(comment.getId(), comment.getContent(), comment.getNikeName(), comment.getCard().getId(), comment.getUser().getId());
+
     }
 }
