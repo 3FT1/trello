@@ -50,4 +50,17 @@ public class CommentService {
         return new CommentResponseDto(comment.getId(), comment.getContent(), comment.getNikeName(), comment.getCard().getId(), comment.getUser().getId());
 
     }
+
+    public void deleteComment(Long commentId, HttpServletRequest servletRequest) {
+
+        User user = (User) servletRequest.getSession().getAttribute("id");
+
+        Comment comment = commentRepository.findByIdOrElseThrow(commentId);
+
+        if (!comment.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException();
+        }
+
+        commentRepository.delete(comment);
+    }
 }

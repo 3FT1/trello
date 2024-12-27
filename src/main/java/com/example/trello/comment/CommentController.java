@@ -28,4 +28,10 @@ public class CommentController {
         CommentResponseDto responseDto = commentService.updateComment(commentId, requestDto, servletRequest);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<String> deleteComment(@PathVariable Long commentId, HttpServletRequest servletRequest) {
+        commentService.deleteComment(commentId, servletRequest);
+        return new ResponseEntity<>("삭제되었습니다" , HttpStatus.OK);
+    }
 }
