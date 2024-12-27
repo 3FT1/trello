@@ -13,7 +13,7 @@ public class LoginRequestDto {
     private final String email;
 
     @NotBlank(message = "비밀번호는 필수값 입니다.")
-    @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$._+]).{8,16}$" , message = "비밀번호는 대문자 + 소문자 + 숫자 + 특수문자를 최소 1글자씩 입려해주세요")
+    @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$._+]).{8,16}$" , message = "비밀번호는 대문자 + 소문자 + 숫자 + 특수문자를 최소 1글자씩 입력해주세요")
     private final String password;
 
     @Builder
