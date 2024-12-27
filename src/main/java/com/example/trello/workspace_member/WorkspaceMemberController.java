@@ -17,13 +17,13 @@ public class WorkspaceMemberController {
 
     @PostMapping("/member-invite")
     public ResponseEntity<WorkspaceMemberResponseDto> inviteWorkspaceUser(@PathVariable Long workspaceId, @RequestBody WorkspaceMemberRequestDto dto, @SessionAttribute("id") Long loginUserId) {
-        WorkspaceMemberResponseDto workspaceMemberResponseDto = workspaceMemberService.inviteWorkspaceMember(workspaceId, dto.getEmail(), loginUserId);
+        WorkspaceMemberResponseDto workspaceMemberResponseDto = workspaceMemberService.inviteWorkspaceMember(workspaceId, dto, loginUserId);
         return new ResponseEntity<>(workspaceMemberResponseDto, HttpStatus.CREATED);
     }
 
     @PatchMapping("/member-role")
     public String updateWorkspaceUserRole(@PathVariable Long workspaceId, @RequestBody UpdateWorkspaceMemberRoleDto dto, @SessionAttribute("id") Long loginUserId) {
-        workspaceMemberService.updateWorkspaceMemberRole(workspaceId, dto.getWorkspaceMemberId(), dto.getRole(), loginUserId);
+        workspaceMemberService.updateWorkspaceMemberRole(workspaceId, dto, loginUserId);
         return "권한이 " + dto.getRole() + "로 변경되었습니다.";
     }
 }

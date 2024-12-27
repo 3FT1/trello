@@ -2,6 +2,8 @@ package com.example.trello.workspace;
 
 import com.example.trello.user.User;
 import com.example.trello.user.UserRepository;
+import com.example.trello.workspace.dto.UpdateWorkspaceRequestDto;
+import com.example.trello.workspace.dto.WorkspaceRequestDto;
 import com.example.trello.workspace.dto.WorkspaceResponseDto;
 
 
@@ -26,7 +28,7 @@ public class WorkspaceService {
     private final WorkspaceMemberRepository workspaceMemberRepository;
 
     @Transactional
-    public WorkspaceResponseDto createWorkspace(String title, String description, Long loginUserId) {
+    public WorkspaceResponseDto createWorkspace(WorkspaceRequestDto dto, Long loginUserId) {
         User loginUser = userRepository.findByIdOrElseThrow(loginUserId);
 
         if (loginUser.getRole() != ADMIN) {
@@ -34,8 +36,8 @@ public class WorkspaceService {
         }
 
         Workspace workspace = Workspace.builder()
-                .title(title)
-                .description(description)
+                .title(dto.getTitle())
+                .description(dto.getDescription())
                 .user(loginUser)
                 .build();
 
@@ -77,7 +79,7 @@ public class WorkspaceService {
     }
 
     @Transactional
-    public WorkspaceResponseDto updateWorkspace(Long workspaceId, String title, String description, Long loginUserId) {
+    public WorkspaceResponseDto updateWorkspace(Long workspaceId, UpdateWorkspaceRequestDto dto, Long loginUserId) {
         WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, workspaceId);
 
         if (findWorkspaceMember.getRole() != WORKSPACE) {
@@ -86,7 +88,7 @@ public class WorkspaceService {
 
         Workspace workspace = findWorkspaceMember.getWorkspace();
 
-        workspace.updateWorkspace(title, description);
+        workspace.updateWorkspace(dto.getTitle(), dto.getDescription());
 
         return WorkspaceResponseDto.toDto(workspace);
     }

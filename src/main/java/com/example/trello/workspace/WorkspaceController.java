@@ -18,7 +18,7 @@ public class WorkspaceController {
 
     @PostMapping
     public ResponseEntity<WorkspaceResponseDto> createWorkspace(@RequestBody WorkspaceRequestDto dto, @SessionAttribute("id") Long loginUserId) {
-        WorkspaceResponseDto createdWorkspaceResponseDto = workspaceService.createWorkspace(dto.getTitle(), dto.getDescription(), loginUserId);
+        WorkspaceResponseDto createdWorkspaceResponseDto = workspaceService.createWorkspace(dto, loginUserId);
 
         return new ResponseEntity<>(createdWorkspaceResponseDto, HttpStatus.CREATED);
     }
@@ -37,7 +37,7 @@ public class WorkspaceController {
 
     @PatchMapping("/{workspaceId}")
     public ResponseEntity<WorkspaceResponseDto> updateWorkspace(@PathVariable Long workspaceId, @RequestBody UpdateWorkspaceRequestDto dto, @SessionAttribute("id") Long loginUserId) {
-        WorkspaceResponseDto updatedWorkspaceResponseDto = workspaceService.updateWorkspace(workspaceId, dto.getTitle(), dto.getDescription(), loginUserId);
+        WorkspaceResponseDto updatedWorkspaceResponseDto = workspaceService.updateWorkspace(workspaceId, dto, loginUserId);
         return new ResponseEntity<>(updatedWorkspaceResponseDto, HttpStatus.OK);
     }
 
