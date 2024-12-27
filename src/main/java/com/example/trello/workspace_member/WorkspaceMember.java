@@ -14,7 +14,7 @@ public class WorkspaceMember {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "role")
+    @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
     private WorkspaceMemberRole role;
 
