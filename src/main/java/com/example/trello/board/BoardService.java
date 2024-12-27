@@ -1,7 +1,6 @@
 package com.example.trello.board;
 
-import com.example.trello.board.dto.BoardDetailResponseDto;
-import com.example.trello.board.dto.BoardResponseDto;
+import com.example.trello.board.dto.*;
 import com.example.trello.card.Card;
 import com.example.trello.card.CardRepository;
 import com.example.trello.card.dto.GetCardResponseDto;
@@ -29,8 +28,8 @@ public class BoardService {
     private final CardRepository cardRepository;
 
     @Transactional
-    public BoardResponseDto createBoard(Long workspaceId, String title, String color, String image, Long loginUserId) {
-        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, workspaceId);
+    public BoardResponseDto createBoard(BoardRequestDto dto, Long loginUserId) {
+        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, dto.getWorkspaceId());
 
         if (findWorkspaceMember.getRole() == READ_ONLY) {
             throw new RuntimeException("읽기 전용 역할은 보드를 생성할 수 없습니다.");
@@ -39,9 +38,9 @@ public class BoardService {
         Workspace workspace = findWorkspaceMember.getWorkspace();
 
         Board board = Board.builder()
-                .title(title)
-                .color(color)
-                .image(image)
+                .title(dto.getTitle())
+                .color(dto.getColor())
+                .image(dto.getImage())
                 .workspace(workspace)
                 .build();
 
@@ -51,12 +50,12 @@ public class BoardService {
     }
 
     @Transactional(readOnly = true)
-    public List<BoardResponseDto> viewAllBoard(Long workspaceId, Long loginUserId) {
-        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(loginUserId, workspaceId)) {
+    public List<BoardResponseDto> viewAllBoard(viewAllBoardRequestDto dto, Long loginUserId) {
+        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(loginUserId, dto.getWorkspaceId())) {
             throw new RuntimeException("해당 워크스페이스의 멤버가 아닙니다.");
         }
 
-        List<Board> findBoardList = boardRepository.findAllByWorkspaceId(workspaceId);
+        List<Board> findBoardList = boardRepository.findAllByWorkspaceId(dto.getWorkspaceId());
 
         return findBoardList
                 .stream()
@@ -86,7 +85,7 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardResponseDto updateBoard(Long boardId, String title, String color, String image, Long loginUserId) {
+    public BoardResponseDto updateBoard(Long boardId, UpdateBoardRequestDto dto, Long loginUserId) {
         Board findBoard = boardRepository.findByIdOrElseThrow(boardId);
         WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, findBoard.getWorkspace().getId());
 
@@ -94,7 +93,7 @@ public class BoardService {
             throw new RuntimeException("읽기 전용 역할은 보드를 수정할 수 없습니다.");
         }
 
-        findBoard.updateBoard(title, color, image);
+        findBoard.updateBoard(dto.getTitle(), dto.getColor(), dto.getImage());
 
         return BoardResponseDto.toDto(findBoard);
     }

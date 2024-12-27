@@ -16,13 +16,13 @@ public class BoardController {
 
     @PostMapping
     public ResponseEntity<BoardResponseDto> createBoard(@RequestBody BoardRequestDto dto, @SessionAttribute("id") Long loginUserId) {
-        BoardResponseDto boardResponseDto = boardService.createBoard(dto.getWorkspaceId(), dto.getTitle(), dto.getColor(), dto.getImage(), loginUserId);
+        BoardResponseDto boardResponseDto = boardService.createBoard(dto, loginUserId);
         return new ResponseEntity<>(boardResponseDto, HttpStatus.CREATED);
     }
 
     @GetMapping
     public ResponseEntity<List<BoardResponseDto>> viewAllBoard(@RequestBody viewAllBoardRequestDto dto, @SessionAttribute("id") Long loginUserId) {
-        List<BoardResponseDto> boardResponseDtoList = boardService.viewAllBoard(dto.getWorkspaceId(), loginUserId);
+        List<BoardResponseDto> boardResponseDtoList = boardService.viewAllBoard(dto, loginUserId);
         return new ResponseEntity<>(boardResponseDtoList, HttpStatus.OK);
     }
 
@@ -34,7 +34,7 @@ public class BoardController {
 
     @PatchMapping("/{boardId}")
     public ResponseEntity<BoardResponseDto> updateBoard(@PathVariable Long boardId, @RequestBody UpdateBoardRequestDto dto, @SessionAttribute("id") Long loginUserId) {
-        BoardResponseDto updatedBoardResponseDto = boardService.updateBoard(boardId, dto.getTitle(), dto.getColor(), dto.getImage(), loginUserId);
+        BoardResponseDto updatedBoardResponseDto = boardService.updateBoard(boardId, dto, loginUserId);
         return new ResponseEntity<>(updatedBoardResponseDto, HttpStatus.OK);
     }
 
