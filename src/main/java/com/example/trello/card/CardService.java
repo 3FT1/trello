@@ -84,7 +84,6 @@ public class CardService {
     }
 
     // 카드 삭제
-    @DeleteMapping("/{cardsId}")
     public void deleteCardService(Long cardId, Long userId) {
         Card card = cardRepository.findByIdOrElseThrow(cardId);
 
@@ -97,14 +96,12 @@ public class CardService {
     }
 
     // 카드 단건 조회
-    @GetMapping("/{cardId}")
     public CardResponseDto findCardById(Long cardsId) {
         Card card = cardRepository.findByIdOrElseThrow(cardsId);
         return CardResponseDto.toDto(card);
     }
 
     // 카드 다건 조회(조건 O)
-    @GetMapping
     public CardPageDto searchCards(int page , Long cardListId, LocalDate startAt, LocalDate endAt, Long boardId) {
         PageRequest pageRequest = PageRequest.of(page,10, Sort.by(Sort.Direction.DESC, "id"));
 
