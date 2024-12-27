@@ -62,7 +62,11 @@ public class CommentService {
         WorkspaceMember workspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userDetails.getUser().getId(), workspaceId);
 
         if (workspaceMember.getRole() != WORKSPACE) {
-            throw new RuntimeException("댓글을 생성할 권한이 없습니다.");
+            throw new RuntimeException("댓글을 수정할 권한이 없습니다.");
+        }
+
+        if (!userDetails.getUser().getId().equals(comment.getWorkspaceMember().getUser().getId())) {
+            throw new RuntimeException();
         }
 
         comment.updateComment(requestDto.getContent());
@@ -83,7 +87,7 @@ public class CommentService {
         WorkspaceMember workspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userDetails.getUser().getId(), workspaceId);
 
         if (workspaceMember.getRole() != WORKSPACE) {
-            throw new RuntimeException("댓글을 생성할 권한이 없습니다.");
+            throw new RuntimeException("댓글을 삭제할 권한이 없습니다.");
         }
 
         if (!userDetails.getUser().getId().equals(comment.getWorkspaceMember().getUser().getId())) {
