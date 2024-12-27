@@ -1,5 +1,6 @@
 package com.example.trello.card.responsedto;
 
+import com.example.trello.card.Card;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 
 @Getter
 public class CardResponseDto {
+
 
     private Long cardListId;
 
@@ -36,5 +38,15 @@ public class CardResponseDto {
         this.nikeName = nikeName;
         this.startAt = startAt;
         this.endAt =endAt;
+    }
+
+    public CardResponseDto(Card card) {
+        this.cardListId = card.getCardList().getId();
+        this.cardId = card.getId();
+        this.title = card.getTitle();
+        this.description = card.getDescription();
+        this.nikeName = card.getNikeName();
+        this.startAt = card.getStartAt();
+        this.endAt =card.getEndAt();
     }
 }

@@ -1,5 +1,6 @@
 package com.example.trello.card;
 
+import com.example.trello.card.requestDto.CardListDto;
 import com.example.trello.card.requestDto.CardRequestDto;
 import com.example.trello.card.responsedto.CardResponseDto;
 import com.example.trello.card.requestDto.UpdateCardRequestDto;
@@ -17,7 +18,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-//import static jdk.javadoc.internal.doclets.formats.html.markup.HtmlStyle.title;
 
 @RequiredArgsConstructor
 @RestController
@@ -51,11 +51,12 @@ public class CardController {
     }
 
     @GetMapping("/getCards")
-    public List<CardResponseDto> getCards(
+    public ResponseEntity<CardListDto> getCards(@RequestParam(defaultValue = "0") int page,
                                                           @RequestParam(required = false) Long cardListId,
                                                           @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
                                                           @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
                                           @RequestParam(required = false) Long boardId) {
-        return cardService.searchCards(cardListId, startAt, endAt, boardId);
+        CardListDto cards = cardService.searchCards(page, cardListId, startAt, endAt, boardId);
+        return new ResponseEntity<>(cards, HttpStatus.OK);
     }
 }

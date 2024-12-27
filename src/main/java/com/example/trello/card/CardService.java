@@ -3,6 +3,7 @@ package com.example.trello.card;
 import com.example.trello.board.Board;
 import com.example.trello.card.cardrepository.CardRepository;
 import com.example.trello.card.cardrepository.CardRepositoryCustomImpl;
+import com.example.trello.card.requestDto.CardListDto;
 import com.example.trello.card.requestDto.CardRequestDto;
 import com.example.trello.card.responsedto.CardResponseDto;
 import com.example.trello.card.requestDto.UpdateCardRequestDto;
@@ -13,12 +14,16 @@ import com.example.trello.user.UserRepository;
 import com.example.trello.workspace.Workspace;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.awt.print.Pageable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Dictionary;
 import java.util.List;
 
 @Service
@@ -70,26 +75,27 @@ public class CardService {
     }
 
     // 카드 다건 조회(조건 O)
-    public List<CardResponseDto> searchCards(Long cardListId, LocalDate startAt, LocalDate endAt, Long boardId) {
+    public CardListDto searchCards(int page ,Long cardListId, LocalDate startAt, LocalDate endAt, Long boardId) {
+        PageRequest pageRequest = PageRequest.of(page,10, Sort.by(Sort.Direction.DESC, "id"));
 
-        List<Card> cards = cardRepository.searchCard(cardListId, startAt, endAt, boardId);
+        CardListDto cards = cardRepository.searchCard(pageRequest, cardListId, startAt, endAt, boardId);
 
-        return convertToDto(cards);
+        return cards;
     }
 
-    private List<CardResponseDto> convertToDto(List<Card> cards) {
-        return cards.stream()
-                .map(card -> new CardResponseDto(
-                        card.getCardList().getId(),
-                        card.getId(),
-                        card.getTitle(),
-                        card.getDescription(),
-                        card.getNikeName(),
-                        card.getStartAt(),
-                        card.getEndAt()
-                ))
-                .toList();
-    }
+//    private CardListDto convertToDto(List<Card> cards) {
+//        return cards.stream()
+//                .map(card -> new CardResponseDto(
+//                        card.getCardList().getId(),
+//                        card.getId(),
+//                        card.getTitle(),
+//                        card.getDescription(),
+//                        card.getNikeName(),
+//                        card.getStartAt(),
+//                        card.getEndAt()
+//                ))
+//                .toList();
+//    }
 
 
 
