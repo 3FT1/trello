@@ -13,6 +13,7 @@ import com.example.trello.user.UserRepository;
 import com.example.trello.workspace.WorkSpaceRepository;
 import com.example.trello.workspace_member.WorkspaceMember;
 import com.example.trello.workspace_member.WorkspaceMemberRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -34,6 +35,7 @@ public class CardService {
     private final WorkspaceMemberRepository workspaceMemberRepository;
 
     // 카드 생성
+    @Transactional
     public CardResponseDto createdCardService(CardRequestDto requestDto, Long userId) {
 
         User user = userRepository.findById(userId).orElseThrow(RuntimeException::new);
@@ -60,6 +62,7 @@ public class CardService {
     }
 
     //카드 업데이트
+    @Transactional
     public CardResponseDto updateCardService(Long cardId, UpdateCardRequestDto requestDto, Long userId) {
         Card card = cardRepository.findByIdOrElseThrow(cardId);
 
@@ -79,6 +82,7 @@ public class CardService {
     }
 
     // 카드 삭제
+    @Transactional
     public void deleteCardService(Long cardId, Long userId) {
         Card card = cardRepository.findByIdOrElseThrow(cardId);
 
@@ -91,12 +95,14 @@ public class CardService {
     }
 
     // 카드 단건 조회
+    @Transactional
     public CardResponseDto findCardById(Long cardId) {
         Card card = cardRepository.findByIdOrElseThrow(cardId);
         return CardResponseDto.toDto(card);
     }
 
     // 카드 다건 조회(조건 O)
+    @Transactional
     public CardPageResponseDto searchCards(int page , Long cardListId, LocalDate startAt, LocalDate endAt, Long boardId) {
         PageRequest pageRequest = PageRequest.of(page,10, Sort.by(Sort.Direction.DESC, "id"));
 

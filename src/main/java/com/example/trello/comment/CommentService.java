@@ -10,6 +10,7 @@ import com.example.trello.workspace.Workspace;
 import com.example.trello.workspace_member.WorkspaceMember;
 import com.example.trello.workspace_member.WorkspaceMemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +23,7 @@ public class CommentService {
     private final WorkspaceMemberRepository workspaceMemberRepository;
 
 
+    @Transactional
     public CommentResponseDto createComment(CommentRequestDto requestDto, HttpServletRequest servletRequest) {
 
         User user = (User) servletRequest.getSession().getAttribute("id");
@@ -42,6 +44,7 @@ public class CommentService {
         return CommentResponseDto.toDto(comment);
     }
 
+    @Transactional
     public CommentResponseDto updateComment(Long commentId, UpdateCommentRequestDto requestDto, HttpServletRequest servletRequest) {
 
         User user = (User) servletRequest.getSession().getAttribute("id");
@@ -60,6 +63,7 @@ public class CommentService {
 
     }
 
+    @Transactional
     public void deleteComment(Long commentId, HttpServletRequest servletRequest) {
 
         User user = (User) servletRequest.getSession().getAttribute("id");
