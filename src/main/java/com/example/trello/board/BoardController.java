@@ -2,6 +2,7 @@ package com.example.trello.board;
 
 import com.example.trello.board.dto.*;
 import com.example.trello.config.auth.UserDetailsImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,13 +18,13 @@ public class BoardController {
     private final BoardService boardService;
 
     @PostMapping
-    public ResponseEntity<BoardResponseDto> createBoard(@RequestBody BoardRequestDto dto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<BoardResponseDto> createBoard(@Valid @RequestBody BoardRequestDto dto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         BoardResponseDto boardResponseDto = boardService.createBoard(dto, userDetails.getUser().getId());
         return new ResponseEntity<>(boardResponseDto, HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<BoardResponseDto>> viewAllBoard(@RequestBody viewAllBoardRequestDto dto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<List<BoardResponseDto>> viewAllBoard(@Valid @RequestBody viewAllBoardRequestDto dto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         List<BoardResponseDto> boardResponseDtoList = boardService.viewAllBoard(dto, userDetails.getUser().getId());
         return new ResponseEntity<>(boardResponseDtoList, HttpStatus.OK);
     }
@@ -35,7 +36,7 @@ public class BoardController {
     }
 
     @PatchMapping("/{boardId}")
-    public ResponseEntity<BoardResponseDto> updateBoard(@PathVariable Long boardId, @RequestBody UpdateBoardRequestDto dto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<BoardResponseDto> updateBoard(@PathVariable Long boardId, @Valid @RequestBody UpdateBoardRequestDto dto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         BoardResponseDto updatedBoardResponseDto = boardService.updateBoard(boardId, dto, userDetails.getUser().getId());
         return new ResponseEntity<>(updatedBoardResponseDto, HttpStatus.OK);
     }
