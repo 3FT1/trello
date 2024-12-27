@@ -4,9 +4,12 @@ import com.example.trello.card.requestDto.UpdateCardRequestDto;
 import com.example.trello.card.responsedto.CardResponseDto;
 import com.example.trello.cardlist.CardList;
 import com.example.trello.comment.Comment;
+import com.example.trello.workspace_member.WorkspaceMember;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
@@ -17,7 +20,8 @@ import java.util.List;
 @Entity
 @Getter
 @DynamicInsert
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 public class Card {
 
     @Id
@@ -33,9 +37,6 @@ public class Card {
     @Column(name = "image")
     private String image;
 
-    @Column(name = "userName")
-    private String nikeName;
-
     @Column(name = "start_at")
     private LocalDate startAt;
 
@@ -45,17 +46,23 @@ public class Card {
     @ManyToOne(fetch = FetchType.LAZY)
     private CardList cardList;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private WorkspaceMember workspaceMember;
+
     @OneToMany(mappedBy = "card",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Comment> comments;
 
-    public Card(String title, String description, String nikeName, LocalDate startAt, LocalDate endAt,CardList cardList) {
+
+
+    public Card(String title, String description, WorkspaceMember workspaceMember, LocalDate startAt, LocalDate endAt,CardList cardList) {
         this.title = title;
         this.description = description;
-        this.nikeName = nikeName;
+        this.workspaceMember = workspaceMember;
         this.startAt = startAt;
         this.endAt = endAt;
         this.cardList = cardList;
     }
+
 
     public void updateCard(CardList cardList, String title, String description, LocalDate startAt, LocalDate endAt) {
         this.cardList = cardList;
