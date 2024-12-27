@@ -16,11 +16,14 @@ public class CommentResponseDto {
 
     private Long userId;
 
-    public CommentResponseDto(Long commentId, String content, Long cardId, Long userId) {
+    private Long workSpaceMemberId;
+
+    public CommentResponseDto(Long commentId, String content, Long cardId, Long userId, Long workSpaceMemberId) {
         this.commentId = commentId;
         this.content = content;
         this.cardId = cardId;
         this.userId = userId;
+        this.workSpaceMemberId = workSpaceMemberId;
     }
 
     public static CommentResponseDto toDto(Comment comment) {
@@ -28,6 +31,7 @@ public class CommentResponseDto {
                 comment.getId(),
                 comment.getContent(),
                 comment.getCard().getId(),
-                comment.getUser().getId());
+                comment.getUser().getId(),
+                comment.getWorkspaceMember().getId());
     }
 }
