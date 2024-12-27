@@ -41,4 +41,10 @@ public class Board {
         this.image = image;
         this.workspace = workspace;
     }
+
+    public void updateBoard(String title, String color, String image) {
+        this.title = title;
+        this.color = color;
+        this.image = image;
+    }
 }

@@ -84,4 +84,18 @@ public class BoardService {
 
         return BoardDetailResponseDto.toDto(findBoard, getCardListResponseDtoList);
     }
+
+    @Transactional
+    public BoardResponseDto updateBoard(Long boardId, String title, String color, String image, Long loginUserId) {
+        Board findBoard = boardRepository.findByIdOrElseThrow(boardId);
+        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, findBoard.getWorkspace().getId());
+
+        if (findWorkspaceMember.getRole() == READ_ONLY) {
+            throw new RuntimeException("읽기 전용 역할은 보드를 수정할 수 없습니다.");
+        }
+
+        findBoard.updateBoard(title, color, image);
+
+        return BoardResponseDto.toDto(findBoard);
+    }
 }

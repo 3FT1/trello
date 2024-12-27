@@ -24,6 +24,6 @@ public class BoardDetailResponseDto {
     }
 
     public static BoardDetailResponseDto toDto(Board board, List<GetCardListResponseDto> cardList) {
-        return new BoardDetailResponseDto(board.getId(), board.getTitle(), board.getImage(), board.getColor(), cardList);
+        return new BoardDetailResponseDto(board.getId(), board.getTitle(), board.getColor(), board.getImage(), cardList);
     }
 }

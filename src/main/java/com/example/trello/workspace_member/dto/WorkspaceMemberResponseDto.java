@@ -10,9 +10,9 @@ public class WorkspaceMemberResponseDto {
     private Long workspaceId;
     private WorkspaceMemberRole role;
 
-    public WorkspaceMemberResponseDto(Long workspaceId, Long userId, WorkspaceMemberRole role) {
-        this.workspaceId = workspaceId;
+    public WorkspaceMemberResponseDto(Long userId, Long workspaceId, WorkspaceMemberRole role) {
         this.userId = userId;
+        this.workspaceId = workspaceId;
         this.role = role;
     }
 

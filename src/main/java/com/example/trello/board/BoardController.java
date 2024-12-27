@@ -1,9 +1,6 @@
 package com.example.trello.board;
 
-import com.example.trello.board.dto.BoardDetailResponseDto;
-import com.example.trello.board.dto.BoardRequestDto;
-import com.example.trello.board.dto.BoardResponseDto;
-import com.example.trello.board.dto.viewAllBoardRequestDto;
+import com.example.trello.board.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,5 +30,11 @@ public class BoardController {
     public ResponseEntity<BoardDetailResponseDto> viewBoard(@PathVariable Long boardId, @SessionAttribute("id") Long loginUserId) {
         BoardDetailResponseDto boardDetailResponseDto = boardService.viewBoard(boardId, loginUserId);
         return new ResponseEntity<>(boardDetailResponseDto, HttpStatus.OK);
+    }
+
+    @PatchMapping("/{boardId}")
+    public ResponseEntity<BoardResponseDto> updateBoard(@PathVariable Long boardId, @RequestBody UpdateBoardRequestDto dto, @SessionAttribute("id") Long loginUserId) {
+        BoardResponseDto updatedBoardResponseDto = boardService.updateBoard(boardId, dto.getTitle(), dto.getColor(), dto.getImage(), loginUserId);
+        return new ResponseEntity<>(updatedBoardResponseDto, HttpStatus.OK);
     }
 }
