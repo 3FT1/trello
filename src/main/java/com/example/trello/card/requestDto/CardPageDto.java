@@ -7,14 +7,14 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class CardListDto {
+public class CardPageDto {
 
     private List<CardResponseDto> cardList;
     private Long count;
 
-    public CardListDto(List<Card> cardList, Long count) {
+    public CardPageDto(List<Card> cardList, Long count) {
         this.cardList = cardList.stream()
-                .map(card -> new CardResponseDto(card))
+                .map(CardResponseDto::toDto)
                 .toList();
         this.count = count;
     }

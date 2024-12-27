@@ -2,20 +2,14 @@ package com.example.trello.card.cardrepository;
 
 import com.example.trello.card.Card;
 import com.example.trello.card.QCard;
-import com.example.trello.card.requestDto.CardListDto;
-import com.example.trello.card.responsedto.CardResponseDto;
+import com.example.trello.card.requestDto.CardPageDto;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import java.awt.print.Pageable;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -25,9 +19,8 @@ public class CardRepositoryCustomImpl implements CardRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public CardListDto searchCard(PageRequest pageRequest, Long cardListId, LocalDate startAt, LocalDate endAt, Long boardId) {
+    public CardPageDto searchCard(PageRequest pageRequest, Long cardListId, LocalDate startAt, LocalDate endAt, Long boardId) {
         QCard card = QCard.card;
-
 
         List<Card> cardList = queryFactory
                 .selectFrom(card)
@@ -49,7 +42,7 @@ public class CardRepositoryCustomImpl implements CardRepositoryCustom{
                         eqEndAt(endAt),
                         eqBoard(boardId))
                 .fetchOne();
-        return new CardListDto(cardList,count);
+        return new CardPageDto(cardList,count);
 
     }
 
