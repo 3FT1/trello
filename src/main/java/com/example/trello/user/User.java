@@ -46,4 +46,8 @@ public class User {
     public void deletedAccount(AccountStatus status) {
         this.status = status;
     }
+
+    public boolean isDeletedAccount(User user) {
+        return user.getStatus().equals(AccountStatus.DELETED);
+    }
 }
