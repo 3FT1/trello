@@ -98,4 +98,16 @@ public class BoardService {
 
         return BoardResponseDto.toDto(findBoard);
     }
+
+    @Transactional
+    public void deleteBoard(Long boardId, Long loginUserId) {
+        Board findBoard = boardRepository.findByIdOrElseThrow(boardId);
+        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, findBoard.getWorkspace().getId());
+
+        if (findWorkspaceMember.getRole() == READ_ONLY) {
+            throw new RuntimeException("읽기 전용 역할은 보드를 삭제할 수 없습니다.");
+        }
+
+        boardRepository.delete(findBoard);
+    }
 }

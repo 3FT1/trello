@@ -37,4 +37,10 @@ public class BoardController {
         BoardResponseDto updatedBoardResponseDto = boardService.updateBoard(boardId, dto.getTitle(), dto.getColor(), dto.getImage(), loginUserId);
         return new ResponseEntity<>(updatedBoardResponseDto, HttpStatus.OK);
     }
+
+    @DeleteMapping("/{boardId}")
+    public String deleteBoard(@PathVariable Long boardId, @SessionAttribute("id") Long loginUserId) {
+        boardService.deleteBoard(boardId, loginUserId);
+        return "보드가 정상적으로 삭제되었습니다.";
+    }
 }
