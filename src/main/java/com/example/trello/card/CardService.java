@@ -8,6 +8,7 @@ import com.example.trello.card.responsedto.CardResponseDto;
 import com.example.trello.card.requestDto.UpdateCardRequestDto;
 import com.example.trello.cardlist.CardList;
 import com.example.trello.cardlist.CardListRepository;
+import com.example.trello.config.auth.UserDetailsImpl;
 import com.example.trello.user.User;
 import com.example.trello.user.UserRepository;
 import com.example.trello.workspace.WorkSpaceRepository;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 
 import static com.example.trello.workspace_member.WorkspaceMemberRole.READ_ONLY;
+import static com.example.trello.workspace_member.WorkspaceMemberRole.WORKSPACE;
 
 @Service
 @RequiredArgsConstructor
@@ -36,16 +38,16 @@ public class CardService {
 
     // 카드 생성
     @Transactional
-    public CardResponseDto createdCardService(CardRequestDto requestDto, Long userId) {
-
-        User user = userRepository.findById(userId).orElseThrow(RuntimeException::new);
+    public CardResponseDto createdCardService(CardRequestDto requestDto, UserDetailsImpl userDetails) {
 
         CardList cardList = cardListRepository.findByIdOrElseThrow(requestDto.getCardListId());
 
-        WorkspaceMember workspaceMember = workspaceMemberRepository.findByIdOrElseThrow(requestDto.getWorkSpaceMemberId());
+        Long workspaceId = cardList.getBoard().getWorkspace().getId();
 
-        if (workspaceMember.getRole().equals(READ_ONLY)) {
-            throw new RuntimeException();
+        WorkspaceMember workspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userDetails.getUser().getId(), workspaceId);
+
+        if (workspaceMember.getRole() != WORKSPACE) {
+            throw new RuntimeException("카드를 생성할 권한이 없습니다.");
         }
 
         Card card = Card.builder()
@@ -63,15 +65,17 @@ public class CardService {
 
     //카드 업데이트
     @Transactional
-    public CardResponseDto updateCardService(Long cardId, UpdateCardRequestDto requestDto, Long userId) {
+    public CardResponseDto updateCardService(Long cardId, UpdateCardRequestDto requestDto, UserDetailsImpl userDetails) {
         Card card = cardRepository.findByIdOrElseThrow(cardId);
 
         CardList cardList = cardListRepository.findByIdOrElseThrow(requestDto.getCardListId());
 
-        User user = userRepository.findById(userId).orElseThrow(RuntimeException::new);
+        Long workspaceId = cardList.getBoard().getWorkspace().getId();
 
-        if (!user.getId().equals(card.getWorkspaceMember().getUser().getId())) {
-            throw new RuntimeException();
+        WorkspaceMember workspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userDetails.getUser().getId(), workspaceId);
+
+        if (workspaceMember.getRole() != WORKSPACE) {
+            throw new RuntimeException("카드를 수정할 권한이 없습니다.");
         }
 
         card.updateCard(cardList, requestDto.getTitle(), requestDto.getDescription(), requestDto.getStartAt(), requestDto.getEndAt());
@@ -83,14 +87,17 @@ public class CardService {
 
     // 카드 삭제
     @Transactional
-    public void deleteCardService(Long cardId, Long userId) {
+    public void deleteCardService(Long cardId, UserDetailsImpl userDetails) {
         Card card = cardRepository.findByIdOrElseThrow(cardId);
 
-        User user = userRepository.findById(userId).orElseThrow(RuntimeException::new);
+        Long workspaceId = card.getCardList().getBoard().getWorkspace().getId();
 
-        if (!user.getId().equals(card.getWorkspaceMember().getUser().getId())) {
-            throw new RuntimeException();
+        WorkspaceMember workspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userDetails.getUser().getId(), workspaceId);
+
+        if (workspaceMember.getRole() != WORKSPACE) {
+            throw new RuntimeException("카드를 삭제할 권한이 없습니다.");
         }
+
         cardRepository.delete(card);
     }
 
