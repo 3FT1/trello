@@ -1,10 +1,9 @@
 package com.example.trello.card;
 
-import com.example.trello.card.requestDto.CardPageDto;
+import com.example.trello.card.responsedto.CardPageResponseDto;
 import com.example.trello.card.requestDto.CardRequestDto;
 import com.example.trello.card.responsedto.CardResponseDto;
 import com.example.trello.card.requestDto.UpdateCardRequestDto;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -46,12 +45,12 @@ public class CardController {
     }
 
     @GetMapping
-    public ResponseEntity<CardPageDto> getCards(@RequestParam(defaultValue = "0") int page,
-                                                @RequestParam(required = false) Long cardListId,
-                                                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
-                                                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
-                                                @RequestParam(required = false) Long boardId) {
-        CardPageDto cards = cardService.searchCards(page, cardListId, startAt, endAt, boardId);
+    public ResponseEntity<CardPageResponseDto> getCards(@RequestParam(defaultValue = "0") int page,
+                                                        @RequestParam(required = false) Long cardListId,
+                                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
+                                                        @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
+                                                        @RequestParam(required = false) Long boardId) {
+        CardPageResponseDto cards = cardService.searchCards(page, cardListId, startAt, endAt, boardId);
         return new ResponseEntity<>(cards, HttpStatus.OK);
     }
 }

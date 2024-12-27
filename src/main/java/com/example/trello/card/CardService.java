@@ -2,7 +2,7 @@ package com.example.trello.card;
 
 import com.example.trello.card.cardrepository.CardRepository;
 import com.example.trello.card.cardrepository.CardRepositoryCustomImpl;
-import com.example.trello.card.requestDto.CardPageDto;
+import com.example.trello.card.responsedto.CardPageResponseDto;
 import com.example.trello.card.requestDto.CardRequestDto;
 import com.example.trello.card.responsedto.CardResponseDto;
 import com.example.trello.card.requestDto.UpdateCardRequestDto;
@@ -13,18 +13,13 @@ import com.example.trello.user.UserRepository;
 import com.example.trello.workspace.WorkSpaceRepository;
 import com.example.trello.workspace_member.WorkspaceMember;
 import com.example.trello.workspace_member.WorkspaceMemberRepository;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDate;
 
-import static com.example.trello.card.QCard.card;
 import static com.example.trello.workspace_member.WorkspaceMemberRole.READ_ONLY;
 
 @Service
@@ -102,10 +97,10 @@ public class CardService {
     }
 
     // 카드 다건 조회(조건 O)
-    public CardPageDto searchCards(int page , Long cardListId, LocalDate startAt, LocalDate endAt, Long boardId) {
+    public CardPageResponseDto searchCards(int page , Long cardListId, LocalDate startAt, LocalDate endAt, Long boardId) {
         PageRequest pageRequest = PageRequest.of(page,10, Sort.by(Sort.Direction.DESC, "id"));
 
-        CardPageDto cards = cardRepository.searchCard(pageRequest, cardListId, startAt, endAt, boardId);
+        CardPageResponseDto cards = cardRepository.searchCard(pageRequest, cardListId, startAt, endAt, boardId);
 
         return cards;
     }

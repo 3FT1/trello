@@ -1,18 +1,17 @@
-package com.example.trello.card.requestDto;
+package com.example.trello.card.responsedto;
 
 import com.example.trello.card.Card;
-import com.example.trello.card.responsedto.CardResponseDto;
 import lombok.Getter;
 
 import java.util.List;
 
 @Getter
-public class CardPageDto {
+public class CardPageResponseDto {
 
     private List<CardResponseDto> cardList;
     private Long count;
 
-    public CardPageDto(List<Card> cardList, Long count) {
+    public CardPageResponseDto(List<Card> cardList, Long count) {
         this.cardList = cardList.stream()
                 .map(CardResponseDto::toDto)
                 .toList();

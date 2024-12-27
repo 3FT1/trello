@@ -2,7 +2,7 @@ package com.example.trello.card.cardrepository;
 
 import com.example.trello.card.Card;
 import com.example.trello.card.QCard;
-import com.example.trello.card.requestDto.CardPageDto;
+import com.example.trello.card.responsedto.CardPageResponseDto;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class CardRepositoryCustomImpl implements CardRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public CardPageDto searchCard(PageRequest pageRequest, Long cardListId, LocalDate startAt, LocalDate endAt, Long boardId) {
+    public CardPageResponseDto searchCard(PageRequest pageRequest, Long cardListId, LocalDate startAt, LocalDate endAt, Long boardId) {
         QCard card = QCard.card;
 
         List<Card> cardList = queryFactory
@@ -42,7 +42,7 @@ public class CardRepositoryCustomImpl implements CardRepositoryCustom{
                         eqEndAt(endAt),
                         eqBoard(boardId))
                 .fetchOne();
-        return new CardPageDto(cardList,count);
+        return new CardPageResponseDto(cardList,count);
 
     }
 
