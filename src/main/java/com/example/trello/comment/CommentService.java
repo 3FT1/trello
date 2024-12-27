@@ -24,13 +24,11 @@ public class CommentService {
 
         Card card = cardRepository.findByIdOrElseThrow(requestDto.getCardId());
 
-        Comment comment = new Comment(requestDto.getContent(), user.getNickname(), card, user);
-
-        card.getComments().add(comment);
+        Comment comment = new Comment(requestDto.getContent(), card, user);
 
         commentRepository.save(comment);
 
-        return new CommentResponseDto(comment.getId(), comment.getContent(), comment.getNikeName(), comment.getCard().getId(), comment.getUser().getId());
+        return new CommentResponseDto(comment.getId(), comment.getContent(), comment.getCard().getId(), comment.getUser().getId());
     }
 
     public CommentResponseDto updateComment(Long commentId, UpdateCommentRequestDto requestDto, HttpServletRequest servletRequest) {
@@ -47,7 +45,7 @@ public class CommentService {
 
         commentRepository.save(comment);
 
-        return new CommentResponseDto(comment.getId(), comment.getContent(), comment.getNikeName(), comment.getCard().getId(), comment.getUser().getId());
+        return new CommentResponseDto(comment.getId(), comment.getContent(), comment.getCard().getId(), comment.getUser().getId());
 
     }
 
