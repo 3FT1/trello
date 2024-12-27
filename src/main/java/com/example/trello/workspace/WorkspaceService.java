@@ -55,8 +55,7 @@ public class WorkspaceService {
 
     @Transactional(readOnly = true)
     public List<WorkspaceResponseDto> viewAllWorkspace(Long loginUserId) {
-        User findUser = userRepository.findByIdOrElseThrow(loginUserId);
-        List<WorkspaceMember> WorkspaceMemberListByUser = workspaceMemberRepository.findByUser(findUser);
+        List<WorkspaceMember> WorkspaceMemberListByUser = workspaceMemberRepository.findByUserId(loginUserId);
 
         List<Workspace> workspaceList = new ArrayList<>();
         for (WorkspaceMember workspaceMember : WorkspaceMemberListByUser) {

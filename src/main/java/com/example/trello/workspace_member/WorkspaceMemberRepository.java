@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface WorkspaceMemberRepository extends JpaRepository<WorkspaceMember,Long> {
-    List<WorkspaceMember> findByUser(User user);
+    List<WorkspaceMember> findByUserId(Long userId);
     Optional<WorkspaceMember> findByUserIdAndWorkspaceId(Long userId, Long workspaceId);
     Boolean existsByUserIdAndWorkspaceId(Long userId, Long workspaceId);
 
