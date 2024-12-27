@@ -3,7 +3,7 @@ package com.example.trello.board;
 import com.example.trello.board.dto.BoardDetailResponseDto;
 import com.example.trello.board.dto.BoardResponseDto;
 import com.example.trello.card.Card;
-import com.example.trello.card.CardRepository;
+import com.example.trello.card.cardrepository.CardRepository;
 import com.example.trello.card.dto.GetCardResponseDto;
 import com.example.trello.cardlist.CardList;
 import com.example.trello.cardlist.CardListRepository;
