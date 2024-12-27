@@ -1,5 +1,6 @@
 package com.example.trello.board;
 
+import com.example.trello.board.dto.BoardDetailResponseDto;
 import com.example.trello.board.dto.BoardRequestDto;
 import com.example.trello.board.dto.BoardResponseDto;
 import com.example.trello.board.dto.viewAllBoardRequestDto;
@@ -26,5 +27,11 @@ public class BoardController {
     public ResponseEntity<List<BoardResponseDto>> viewAllBoard(@RequestBody viewAllBoardRequestDto dto, @SessionAttribute("id") Long loginUserId) {
         List<BoardResponseDto> boardResponseDtoList = boardService.viewAllBoard(dto.getWorkspaceId(), loginUserId);
         return new ResponseEntity<>(boardResponseDtoList, HttpStatus.OK);
+    }
+
+    @GetMapping("/{boardId}")
+    public ResponseEntity<BoardDetailResponseDto> viewBoard(@PathVariable Long boardId, @SessionAttribute("id") Long loginUserId) {
+        BoardDetailResponseDto boardDetailResponseDto = boardService.viewBoard(boardId, loginUserId);
+        return new ResponseEntity<>(boardDetailResponseDto, HttpStatus.OK);
     }
 }
