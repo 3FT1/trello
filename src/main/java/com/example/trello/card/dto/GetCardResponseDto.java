@@ -5,6 +5,7 @@ import com.example.trello.cardlist.CardList;
 import com.example.trello.cardlist.dto.GetCardListResponseDto;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,10 +14,10 @@ public class GetCardResponseDto {
     private Long id;
     private String title;
     private String description;
-    private LocalDateTime startAt;
-    private LocalDateTime endAt;
+    private LocalDate startAt;
+    private LocalDate endAt;
 
-    public GetCardResponseDto(Long id, String title, String description, LocalDateTime startAt, LocalDateTime endAt) {
+    public GetCardResponseDto(Long id, String title, String description, LocalDate startAt, LocalDate endAt) {
         this.id = id;
         this.title = title;
         this.description = description;
