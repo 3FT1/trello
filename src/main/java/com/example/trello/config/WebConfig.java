@@ -1,6 +1,6 @@
 package com.example.trello.config;
 
-import jakarta.servlet.DispatcherType;
+import com.example.trello.config.auth.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -17,25 +17,25 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity // SecurityFilterChain 빈 설정을 위해 필요.
 @RequiredArgsConstructor
 public class WebConfig {
 
-    private final AuthenticationProvider authenticationProvider;
 
+    private final UserDetailsServiceImpl userDetailsServiceImpl;
+
+
+    private final AuthenticationProvider authenticationProvider;
     /**
      * AuthenticationEntryPoint.
      */
     private final AuthenticationEntryPoint authEntryPoint;
-
     /**
      * AccessDeniedHandler.
      */
     private final AccessDeniedHandler accessDeniedHandler;
-
     /**
      * 화이트 리스트.
      */
@@ -53,10 +53,9 @@ public class WebConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers(WHITE_LIST).permitAll()
-                                .requestMatchers("/admins/**").hasRole("ADMIN")
-                                .requestMatchers("/users/**").hasRole("USER")
-                                // 나머지는 인증이 필요
-                                .anyRequest().authenticated()
+//                                .requestMatchers("/admins/**").hasRole("ADMIN")
+//                                .requestMatchers("/users/**").hasRole("user")
+                                .anyRequest().permitAll()
                 )
                 // Spring Security 예외에 대한 처리를 핸들러에 위임.
                 .exceptionHandling(handler -> handler
