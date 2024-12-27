@@ -21,7 +21,7 @@ public class CardResponseDto {
 
     private String description;
 
-    private String nikeName;
+    private Long workSpaceMemberId;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     LocalDate startAt;
@@ -30,23 +30,24 @@ public class CardResponseDto {
     LocalDate endAt;
 
 
-    public CardResponseDto(Long cardListId, Long cardId, String title, String description, String nikeName, LocalDate startAt, LocalDate endAt) {
+    public CardResponseDto(Long cardListId, Long cardId, String title, String description, Long workSpaceMemberId, LocalDate startAt, LocalDate endAt) {
         this.cardListId = cardListId;
         this.cardId = cardId;
         this.title = title;
         this.description = description;
-        this.nikeName = nikeName;
+        this.workSpaceMemberId = workSpaceMemberId;
         this.startAt = startAt;
         this.endAt =endAt;
     }
 
-    public CardResponseDto(Card card) {
-        this.cardListId = card.getCardList().getId();
-        this.cardId = card.getId();
-        this.title = card.getTitle();
-        this.description = card.getDescription();
-        this.nikeName = card.getNikeName();
-        this.startAt = card.getStartAt();
-        this.endAt =card.getEndAt();
+
+    public static CardResponseDto toDto(Card card) {
+        return new CardResponseDto(card.getCardList().getId(),
+        card.getId(),
+        card.getTitle(),
+        card.getDescription(),
+        card.getWorkspaceMember().getId(),
+        card.getStartAt(),
+        card.getEndAt());
     }
 }
