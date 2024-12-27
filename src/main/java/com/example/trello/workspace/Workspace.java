@@ -6,11 +6,13 @@ import com.example.trello.workspace_member.WorkspaceMember;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.List;
 
 @Entity
 @Getter
+@DynamicUpdate
 public class Workspace {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
