@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
 
     }
 
-    @ExceptionHandler(CardListException.class)
+    @ExceptionHandler(WorkspaceException.class)
     public ResponseEntity<ErrorResponse> handleCardListException(WorkspaceException e) {
         ErrorResponse message = ErrorResponse.builder()
                 .errorCode(e.getWorkspaceErrorCode().name())
@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
 
     }
 
-    @ExceptionHandler(CardListException.class)
+    @ExceptionHandler(WorkspaceMemberException.class)
     public ResponseEntity<ErrorResponse> handleCardListException(WorkspaceMemberException e) {
         ErrorResponse message = ErrorResponse.builder()
                 .errorCode(e.getWorkspaceMemberErrorCode().name())
@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
 
     }
 
-    @ExceptionHandler(CardListException.class)
+    @ExceptionHandler(BoardException.class)
     public ResponseEntity<ErrorResponse> handleCardListException(BoardException e) {
         ErrorResponse message = ErrorResponse.builder()
                 .errorCode(e.getBoardErrorCode().name())

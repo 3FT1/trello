@@ -40,6 +40,10 @@ public class WorkspaceMemberService {
         User findUser = userRepository.findByEmailOrElseThrow(dto.getEmail());
         Workspace workspace = findWorkspaceMember.getWorkspace();
 
+        if (workspaceMemberRepository.existsByUserIdAndWorkspaceId(findUser.getId(), workspace.getId())) {
+            throw new WorkspaceMemberException(WorkspaceMemberErrorCode.ALREADY_MEMBER);
+        }
+
         WorkspaceMember workspaceMember = WorkspaceMember.builder()
                 .user(findUser)
                 .workspace(workspace)
@@ -63,7 +67,7 @@ public class WorkspaceMemberService {
             throw new WorkspaceMemberException(WorkspaceMemberErrorCode.ONLY_WORKSPACE_ROLE_CAN_UPDATE_MEMBER_ROLE);
         }
 
-        WorkspaceMember roleUpdatedWorkspaceMember = workspaceMemberRepository.findByIdOrElseThrow(dto.getWorkspaceMemberId());
+        WorkspaceMember roleUpdatedWorkspaceMember = workspaceMemberRepository.findByIdAndWorkspaceIdOrElseThrow(dto.getWorkspaceMemberId(), workspaceId);
 
         roleUpdatedWorkspaceMember.updateRole(dto.getRole());
         log.info("{}의 역할이 {}로 변경되었습니다.", roleUpdatedWorkspaceMember.getUser().getNickname(), dto.getRole());
