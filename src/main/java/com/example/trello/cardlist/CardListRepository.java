@@ -1,5 +1,6 @@
 package com.example.trello.cardlist;
 
+import com.example.trello.board.Board;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,6 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface CardListRepository extends JpaRepository<CardList, Long> {
+    List<CardList> findByBoard(Board board);
 
     default CardList findByIdOrElseThrow(Long id) {
         return findById(id).orElseThrow(() -> new RuntimeException());
