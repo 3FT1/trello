@@ -1,22 +1,17 @@
 package com.example.trello.card;
 
-import com.example.trello.card.requestDto.CardListDto;
+import com.example.trello.card.requestDto.CardPageDto;
 import com.example.trello.card.requestDto.CardRequestDto;
 import com.example.trello.card.responsedto.CardResponseDto;
 import com.example.trello.card.requestDto.UpdateCardRequestDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.query.Page;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.print.Pageable;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 
 
 @RequiredArgsConstructor
@@ -27,20 +22,20 @@ public class CardController {
     private final CardService cardService;
 
     @PostMapping
-    public ResponseEntity<CardResponseDto> createdCard(@RequestBody CardRequestDto requestDto, HttpServletRequest servletRequest) {
-        CardResponseDto responseDto = cardService.createdCardService(requestDto, servletRequest);
+    public ResponseEntity<CardResponseDto> createdCard(@RequestBody CardRequestDto requestDto, @SessionAttribute("id") Long userid) {
+        CardResponseDto responseDto = cardService.createdCardService(requestDto, userid);
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
     @PatchMapping("/{cardsId}/updateCards")
-    public ResponseEntity<CardResponseDto> updateCard(@PathVariable Long cardsId, @RequestBody UpdateCardRequestDto requestDto, HttpServletRequest servletRequest) {
-        CardResponseDto responseDto = cardService.updateCardService(cardsId, requestDto, servletRequest);
+    public ResponseEntity<CardResponseDto> updateCard(@PathVariable Long cardsId, @RequestBody UpdateCardRequestDto requestDto, @SessionAttribute("id") Long userid) {
+        CardResponseDto responseDto = cardService.updateCardService(cardsId, requestDto, userid);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
     @DeleteMapping("/{cardsId}")
-    public ResponseEntity<String> deleteCard(@PathVariable Long cardsId, HttpServletRequest servletRequest) {
-        cardService.deleteCardService(cardsId, servletRequest);
+    public ResponseEntity<String> deleteCard(@PathVariable Long cardsId, @SessionAttribute("id") Long userid) {
+        cardService.deleteCardService(cardsId, userid);
         return new ResponseEntity<>("삭제 완료되었습니다", HttpStatus.OK);
     }
 
@@ -50,13 +45,13 @@ public class CardController {
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
-    @GetMapping("/getCards")
-    public ResponseEntity<CardListDto> getCards(@RequestParam(defaultValue = "0") int page,
-                                                          @RequestParam(required = false) Long cardListId,
-                                                          @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
-                                                          @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
-                                          @RequestParam(required = false) Long boardId) {
-        CardListDto cards = cardService.searchCards(page, cardListId, startAt, endAt, boardId);
+    @GetMapping
+    public ResponseEntity<CardPageDto> getCards(@RequestParam(defaultValue = "0") int page,
+                                                @RequestParam(required = false) Long cardListId,
+                                                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startAt,
+                                                @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endAt,
+                                                @RequestParam(required = false) Long boardId) {
+        CardPageDto cards = cardService.searchCards(page, cardListId, startAt, endAt, boardId);
         return new ResponseEntity<>(cards, HttpStatus.OK);
     }
 }

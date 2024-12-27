@@ -1,9 +1,8 @@
 package com.example.trello.card;
 
-import com.example.trello.board.Board;
 import com.example.trello.card.cardrepository.CardRepository;
 import com.example.trello.card.cardrepository.CardRepositoryCustomImpl;
-import com.example.trello.card.requestDto.CardListDto;
+import com.example.trello.card.requestDto.CardPageDto;
 import com.example.trello.card.requestDto.CardRequestDto;
 import com.example.trello.card.responsedto.CardResponseDto;
 import com.example.trello.card.requestDto.UpdateCardRequestDto;
@@ -11,20 +10,20 @@ import com.example.trello.cardlist.CardList;
 import com.example.trello.cardlist.CardListRepository;
 import com.example.trello.user.User;
 import com.example.trello.user.UserRepository;
-import com.example.trello.workspace.Workspace;
+import com.example.trello.workspace.WorkSpaceRepository;
+import com.example.trello.workspace_member.WorkspaceMember;
+import com.example.trello.workspace_member.WorkspaceMemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
-import java.awt.print.Pageable;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.List;
+
+import static com.example.trello.card.QCard.card;
+import static com.example.trello.workspace_member.WorkspaceMemberRole.READ_ONLY;
 
 @Service
 @RequiredArgsConstructor
@@ -34,27 +33,35 @@ public class CardService {
     private final CardListRepository cardListRepository;
     private final CardRepositoryCustomImpl cardRepositoryCustomImpl;
     private final UserRepository userRepository;
+    private final WorkSpaceRepository workSpaceRepository;
+    private final WorkspaceMemberRepository workspaceMemberRepository;
 
     // 카드 생성
-    public CardResponseDto createdCardService(CardRequestDto requestDto, HttpServletRequest servletRequest) {
+    public CardResponseDto createdCardService(CardRequestDto requestDto, Long userId) {
 
-        User user = (User) servletRequest.getSession().getAttribute("id");
+        User user = userRepository.findById(userId).orElseThrow(RuntimeException::new);
 
-        CardList cardList = findCardListByCardListId(requestDto.getCardListId());
+        CardList cardList = cardListRepository.findByIdOrElseThrow(requestDto.getCardListId());
 
-        Card card = new Card(requestDto.getTitle(), requestDto.getDescription(),user.getNickname(), requestDto.getStartAt(), requestDto.getEndAt(), cardList);
+        WorkspaceMember workspaceMember = workspaceMemberRepository.findByIdOrElseThrow(requestDto.getWorkSpaceMemberId());
+
+        if (workspaceMember.getRole().equals(READ_ONLY)) {
+            throw new RuntimeException();
+        }
+
+        Card card = new Card(requestDto.getTitle(), requestDto.getDescription(), workspaceMember, requestDto.getStartAt(), requestDto.getEndAt(), cardList);
         cardRepository.save(card);
 
-        return new CardResponseDto(cardList.getId(), card.getId(), requestDto.getTitle(), requestDto.getDescription(),user.getNickname(), requestDto.getStartAt(), requestDto.getEndAt());
+        return CardResponseDto.toDto(card);
     }
 
     //카드 업데이트
-    public CardResponseDto updateCardService(Long cardId, UpdateCardRequestDto requestDto, HttpServletRequest servletRequest) {
+    public CardResponseDto updateCardService(Long cardId, UpdateCardRequestDto requestDto, Long userId) {
         Card card = cardRepository.findByIdOrElseThrow(cardId);
 
         CardList cardList = cardListRepository.findByIdOrElseThrow(requestDto.getCardListId());
 
-        User user = (User) servletRequest.getSession().getAttribute("id");
+        User user = userRepository.findById(userId).orElseThrow(RuntimeException::new);
 
         if (!user.getId().equals(cardId)) {
             throw new RuntimeException();
@@ -64,15 +71,15 @@ public class CardService {
 
         cardRepository.save(card);
 
-        return new CardResponseDto(cardList.getId(), card.getId(), requestDto.getTitle(), requestDto.getDescription(), card.getNikeName(),requestDto.getStartAt(), requestDto.getEndAt());
+        return CardResponseDto.toDto(card);
     }
 
     // 카드 삭제
-    @PostMapping("/{cardsId}")
-    public void deleteCardService(Long cardId, HttpServletRequest servletRequest) {
+    @DeleteMapping("/{cardsId}")
+    public void deleteCardService(Long cardId, Long userId) {
         Card card = cardRepository.findByIdOrElseThrow(cardId);
 
-        User user = (User) servletRequest.getSession().getAttribute("id");
+        User user = userRepository.findById(userId).orElseThrow(RuntimeException::new);
 
         if (!user.getId().equals(cardId)) {
             throw new RuntimeException();
@@ -83,14 +90,14 @@ public class CardService {
     // 카드 단건 조회
     public CardResponseDto findCardById(Long cardsId) {
         Card card = cardRepository.findByIdOrElseThrow(cardsId);
-        return new CardResponseDto(card.getCardList().getId(), card.getId(), card.getTitle(), card.getDescription(), card.getNikeName(), card.getStartAt(),card.getEndAt());
+        return CardResponseDto.toDto(card);
     }
 
     // 카드 다건 조회(조건 O)
-    public CardListDto searchCards(int page ,Long cardListId, LocalDate startAt, LocalDate endAt, Long boardId) {
+    public CardPageDto searchCards(int page , Long cardListId, LocalDate startAt, LocalDate endAt, Long boardId) {
         PageRequest pageRequest = PageRequest.of(page,10, Sort.by(Sort.Direction.DESC, "id"));
 
-        CardListDto cards = cardRepository.searchCard(pageRequest, cardListId, startAt, endAt, boardId);
+        CardPageDto cards = cardRepository.searchCard(pageRequest, cardListId, startAt, endAt, boardId);
 
         return cards;
     }
@@ -108,12 +115,5 @@ public class CardService {
 //                ))
 //                .toList();
 //    }
-
-
-
-    // 카드 리스트id로 카드 리스트 찾는 메소드
-    public CardList findCardListByCardListId(Long id) {
-        return cardListRepository.findByIdOrElseThrow(id);
-    }
 
 }
