@@ -2,14 +2,19 @@ package com.example.trello.notification;
 
 import com.example.trello.workspace.Workspace;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.Fetch;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Notification {
 
     @Id
@@ -25,5 +30,9 @@ public class Notification {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Workspace workspace;
+
+    @Enumerated(EnumType.STRING)
+    private NotificationType notificationType;
+
 
 }
