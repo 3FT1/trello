@@ -49,10 +49,16 @@ public class CardService {
     }
 
     //카드 업데이트
-    public CardResponseDto updateCardService(Long cardId, UpdateCardRequestDto requestDto) {
+    public CardResponseDto updateCardService(Long cardId, UpdateCardRequestDto requestDto, HttpServletRequest servletRequest) {
         Card card = cardRepository.findByIdOrElseThrow(cardId);
 
         CardList cardList = cardListRepository.findByIdOrElseThrow(requestDto.getCardListId());
+
+        User user = (User) servletRequest.getSession().getAttribute("id");
+
+        if (!user.getId().equals(cardId)) {
+            throw new RuntimeException();
+        }
 
         card.updateCard(cardList, requestDto.getTitle(), requestDto.getDescription(), requestDto.getStartAt(), requestDto.getEndAt());
 
@@ -63,8 +69,14 @@ public class CardService {
 
     // 카드 삭제
     @PostMapping("/{cardsId}")
-    public void deleteCardService(Long cardId) {
+    public void deleteCardService(Long cardId, HttpServletRequest servletRequest) {
         Card card = cardRepository.findByIdOrElseThrow(cardId);
+
+        User user = (User) servletRequest.getSession().getAttribute("id");
+
+        if (!user.getId().equals(cardId)) {
+            throw new RuntimeException();
+        }
         cardRepository.delete(card);
     }
 

@@ -33,14 +33,14 @@ public class CardController {
     }
 
     @PatchMapping("/{cardsId}/updateCards")
-    public ResponseEntity<CardResponseDto> updateCard(@PathVariable Long cardsId, @RequestBody UpdateCardRequestDto requestDto) {
-        CardResponseDto responseDto = cardService.updateCardService(cardsId, requestDto);
+    public ResponseEntity<CardResponseDto> updateCard(@PathVariable Long cardsId, @RequestBody UpdateCardRequestDto requestDto, HttpServletRequest servletRequest) {
+        CardResponseDto responseDto = cardService.updateCardService(cardsId, requestDto, servletRequest);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
     @DeleteMapping("/{cardsId}")
-    public ResponseEntity<String> deleteCard(@PathVariable Long cardsId) {
-        cardService.deleteCardService(cardsId);
+    public ResponseEntity<String> deleteCard(@PathVariable Long cardsId, HttpServletRequest servletRequest) {
+        cardService.deleteCardService(cardsId, servletRequest);
         return new ResponseEntity<>("삭제 완료되었습니다", HttpStatus.OK);
     }
 
