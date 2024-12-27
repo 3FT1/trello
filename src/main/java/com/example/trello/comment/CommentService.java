@@ -28,7 +28,7 @@ public class CommentService {
 
         commentRepository.save(comment);
 
-        return new CommentResponseDto(comment.getId(), comment.getContent(), comment.getCard().getId(), comment.getUser().getId());
+        return CommentResponseDto.toDto(comment);
     }
 
     public CommentResponseDto updateComment(Long commentId, UpdateCommentRequestDto requestDto, HttpServletRequest servletRequest) {
@@ -45,7 +45,7 @@ public class CommentService {
 
         commentRepository.save(comment);
 
-        return new CommentResponseDto(comment.getId(), comment.getContent(), comment.getCard().getId(), comment.getUser().getId());
+        return CommentResponseDto.toDto(comment);
 
     }
 
