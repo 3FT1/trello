@@ -5,6 +5,7 @@ import com.example.trello.card.cardrepository.CardRepository;
 import com.example.trello.comment.dto.request.CommentRequestDto;
 import com.example.trello.comment.dto.request.UpdateCommentRequestDto;
 import com.example.trello.comment.dto.response.CommentResponseDto;
+import com.example.trello.config.auth.UserDetailsImpl;
 import com.example.trello.user.User;
 import com.example.trello.workspace.Workspace;
 import com.example.trello.workspace_member.WorkspaceMember;
@@ -15,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import static com.example.trello.workspace_member.WorkspaceMemberRole.WORKSPACE;
+
 @Service
 @RequiredArgsConstructor
 public class CommentService {
@@ -24,18 +27,22 @@ public class CommentService {
 
 
     @Transactional
-    public CommentResponseDto createComment(CommentRequestDto requestDto, HttpServletRequest servletRequest) {
-
-        User user = (User) servletRequest.getSession().getAttribute("id");
+    public CommentResponseDto createComment(CommentRequestDto requestDto, UserDetailsImpl userDetails) {
 
         Card card = cardRepository.findByIdOrElseThrow(requestDto.getCardId());
 
-        WorkspaceMember workspaceMember = workspaceMemberRepository.findByIdOrElseThrow(requestDto.getWorkSpaceMemberId());
+        Long workspaceId = card.getCardList().getBoard().getWorkspace().getId();
+
+        WorkspaceMember workspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userDetails.getUser().getId(), workspaceId);
+
+        if (workspaceMember.getRole() != WORKSPACE) {
+            throw new RuntimeException("댓글을 생성할 권한이 없습니다.");
+        }
 
         Comment comment = Comment.builder()
                 .content(requestDto.getContent())
                 .card(card)
-                .user(user)
+                .user(userDetails.getUser())
                 .workspaceMember(workspaceMember)
                 .build();
 
@@ -45,14 +52,17 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentResponseDto updateComment(Long commentId, UpdateCommentRequestDto requestDto, HttpServletRequest servletRequest) {
+    public CommentResponseDto updateComment(Long commentId, UpdateCommentRequestDto requestDto, UserDetailsImpl userDetails) {
 
-        User user = (User) servletRequest.getSession().getAttribute("id");
 
         Comment comment = commentRepository.findByIdOrElseThrow(commentId);
 
-        if (!user.getId().equals(comment.getWorkspaceMember().getUser().getId())) {
-            throw new RuntimeException();
+        Long workspaceId = comment.getCard().getCardList().getBoard().getWorkspace().getId();
+
+        WorkspaceMember workspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userDetails.getUser().getId(), workspaceId);
+
+        if (workspaceMember.getRole() != WORKSPACE) {
+            throw new RuntimeException("댓글을 생성할 권한이 없습니다.");
         }
 
         comment.updateComment(requestDto.getContent());
@@ -64,13 +74,19 @@ public class CommentService {
     }
 
     @Transactional
-    public void deleteComment(Long commentId, HttpServletRequest servletRequest) {
-
-        User user = (User) servletRequest.getSession().getAttribute("id");
+    public void deleteComment(Long commentId, UserDetailsImpl userDetails) {
 
         Comment comment = commentRepository.findByIdOrElseThrow(commentId);
 
-        if (!user.getId().equals(comment.getWorkspaceMember().getUser().getId())) {
+        Long workspaceId = comment.getCard().getCardList().getBoard().getWorkspace().getId();
+
+        WorkspaceMember workspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userDetails.getUser().getId(), workspaceId);
+
+        if (workspaceMember.getRole() != WORKSPACE) {
+            throw new RuntimeException("댓글을 생성할 권한이 없습니다.");
+        }
+
+        if (!userDetails.getUser().getId().equals(comment.getWorkspaceMember().getUser().getId())) {
             throw new RuntimeException();
         }
 
