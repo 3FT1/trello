@@ -26,13 +26,13 @@ public class CardController {
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
-    @PatchMapping("/{cardsId}/updateCards")
+    @PatchMapping("/{cardId}")
     public ResponseEntity<CardResponseDto> updateCard(@PathVariable Long cardsId, @RequestBody UpdateCardRequestDto requestDto, @SessionAttribute("id") Long userid) {
         CardResponseDto responseDto = cardService.updateCardService(cardsId, requestDto, userid);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{cardsId}")
+    @DeleteMapping("/{cardId}")
     public ResponseEntity<String> deleteCard(@PathVariable Long cardsId, @SessionAttribute("id") Long userid) {
         cardService.deleteCardService(cardsId, userid);
         return new ResponseEntity<>("삭제 완료되었습니다", HttpStatus.OK);
