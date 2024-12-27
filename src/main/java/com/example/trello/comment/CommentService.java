@@ -6,6 +6,9 @@ import com.example.trello.comment.dto.request.CommentRequestDto;
 import com.example.trello.comment.dto.request.UpdateCommentRequestDto;
 import com.example.trello.comment.dto.response.CommentResponseDto;
 import com.example.trello.user.User;
+import com.example.trello.workspace.Workspace;
+import com.example.trello.workspace_member.WorkspaceMember;
+import com.example.trello.workspace_member.WorkspaceMemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class CommentService {
     private final CardRepository cardRepository;
     private final CommentRepository commentRepository;
+    private final WorkspaceMemberRepository workspaceMemberRepository;
 
 
     public CommentResponseDto createComment(CommentRequestDto requestDto, HttpServletRequest servletRequest) {
@@ -24,7 +28,14 @@ public class CommentService {
 
         Card card = cardRepository.findByIdOrElseThrow(requestDto.getCardId());
 
-        Comment comment = new Comment(requestDto.getContent(), card, user);
+        WorkspaceMember workspaceMember = workspaceMemberRepository.findByIdOrElseThrow(requestDto.getWorkSpaceMemberId());
+
+        Comment comment = Comment.builder()
+                .content(requestDto.getContent())
+                .card(card)
+                .user(user)
+                .workspaceMember(workspaceMember)
+                .build();
 
         commentRepository.save(comment);
 

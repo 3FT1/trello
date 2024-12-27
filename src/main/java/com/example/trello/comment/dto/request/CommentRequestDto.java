@@ -9,8 +9,11 @@ public class CommentRequestDto {
 
     private Long cardId;
 
-    public CommentRequestDto(String content, Long cardId) {
+    private Long workSpaceMemberId;
+
+    public CommentRequestDto(String content, Long cardId, Long workSpaceMemberId) {
         this.content = content;
         this.cardId = cardId;
+        this.workSpaceMemberId = workSpaceMemberId;
     }
 }
