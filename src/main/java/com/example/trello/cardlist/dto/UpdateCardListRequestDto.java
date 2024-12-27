@@ -1,13 +1,13 @@
 package com.example.trello.cardlist.dto;
 
-import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
-public class CreateCardListResponseDto {
+public class UpdateCardListRequestDto {
 
-    private Long id;
+    private String title;
 
     private Integer sequence;
+
+
 }
