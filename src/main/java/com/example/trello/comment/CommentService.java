@@ -48,7 +48,7 @@ public class CommentService {
 
         Comment comment = commentRepository.findByIdOrElseThrow(commentId);
 
-        if (!comment.getUser().getId().equals(user.getId())) {
+        if (!user.getId().equals(comment.getWorkspaceMember().getUser().getId())) {
             throw new RuntimeException();
         }
 
@@ -66,7 +66,7 @@ public class CommentService {
 
         Comment comment = commentRepository.findByIdOrElseThrow(commentId);
 
-        if (!comment.getUser().getId().equals(user.getId())) {
+        if (!user.getId().equals(comment.getWorkspaceMember().getUser().getId())) {
             throw new RuntimeException();
         }
 
