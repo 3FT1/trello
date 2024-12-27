@@ -2,13 +2,10 @@ package com.example.trello.cardlist;
 
 import com.example.trello.board.Board;
 import com.example.trello.card.Card;
-import com.example.trello.cardlist.dto.CardListRequestDto;
-import com.example.trello.cardlist.dto.CreateCardListResponseDto;
+import com.example.trello.cardlist.dto.UpdateCardListRequestDto;
+import com.example.trello.cardlist.dto.CardListResponseDto;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -25,7 +22,7 @@ public class CardList {
 
     @Column(name = "title")
     private String title;
-
+    @Setter
     @Column(name = "sequence")
     private Integer sequence;
 
@@ -35,21 +32,25 @@ public class CardList {
     @OneToMany(mappedBy = "cardList", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Card> cards;
 
-    public static CreateCardListResponseDto toDto(CardList cardList) {
-        return CreateCardListResponseDto.builder()
+    public static CardListResponseDto toDto(CardList cardList) {
+        return CardListResponseDto.builder()
                 .id(cardList.getId())
                 .sequence(cardList.sequence)
                 .build();
     }
 
-    public void update(CardListRequestDto requestDto,Integer sequence ) {
+    public void update(UpdateCardListRequestDto requestDto, Integer sequence ) {
         this.title = requestDto.getTitle();
         this.sequence = sequence;
 
     }
 
-    public void sortSequence(Integer sequence) {
-        this.sequence=sequence-1;
+    public void downSequence() {
+        this.sequence--;
+    }
+
+    public void upSequence() {
+        this.sequence++;
     }
 
     public void updateSequence(Integer sequence) {
