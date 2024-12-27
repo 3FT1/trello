@@ -7,6 +7,7 @@ import com.example.trello.card.dto.GetCardResponseDto;
 import com.example.trello.cardlist.CardList;
 import com.example.trello.cardlist.CardListRepository;
 import com.example.trello.cardlist.dto.GetCardListResponseDto;
+import com.example.trello.common.exception.*;
 import com.example.trello.workspace.Workspace;
 import com.example.trello.workspace_member.WorkspaceMember;
 import com.example.trello.workspace_member.WorkspaceMemberRepository;
@@ -32,7 +33,7 @@ public class BoardService {
         WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, dto.getWorkspaceId());
 
         if (findWorkspaceMember.getRole() == READ_ONLY) {
-            throw new RuntimeException("읽기 전용 역할은 보드를 생성할 수 없습니다.");
+            throw new BoardException(BoardErrorCode.READ_ONLY_CANT_NOT_HANDLE_BOARD);
         }
 
         Workspace workspace = findWorkspaceMember.getWorkspace();
@@ -52,7 +53,7 @@ public class BoardService {
     @Transactional(readOnly = true)
     public List<BoardResponseDto> viewAllBoard(viewAllBoardRequestDto dto, Long loginUserId) {
         if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(loginUserId, dto.getWorkspaceId())) {
-            throw new RuntimeException("해당 워크스페이스의 멤버가 아닙니다.");
+            throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
         }
 
         List<Board> findBoardList = boardRepository.findAllByWorkspaceId(dto.getWorkspaceId());
@@ -68,7 +69,7 @@ public class BoardService {
         Board findBoard = boardRepository.findByIdOrElseThrow(boardId);
 
         if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(loginUserId, findBoard.getWorkspace().getId())) {
-            throw new RuntimeException("해당 워크스페이스의 멤버가 아닙니다.");
+            throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
         }
 
         List<CardList> findCardLists = cardListRepository.findByBoard(findBoard);
@@ -90,7 +91,7 @@ public class BoardService {
         WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, findBoard.getWorkspace().getId());
 
         if (findWorkspaceMember.getRole() == READ_ONLY) {
-            throw new RuntimeException("읽기 전용 역할은 보드를 수정할 수 없습니다.");
+            throw new BoardException(BoardErrorCode.READ_ONLY_CANT_NOT_HANDLE_BOARD);
         }
 
         findBoard.updateBoard(dto.getTitle(), dto.getColor(), dto.getImage());
@@ -104,7 +105,7 @@ public class BoardService {
         WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, findBoard.getWorkspace().getId());
 
         if (findWorkspaceMember.getRole() == READ_ONLY) {
-            throw new RuntimeException("읽기 전용 역할은 보드를 삭제할 수 없습니다.");
+            throw new BoardException(BoardErrorCode.READ_ONLY_CANT_NOT_HANDLE_BOARD);
         }
 
         boardRepository.delete(findBoard);

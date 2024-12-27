@@ -1,5 +1,7 @@
 package com.example.trello.workspace;
 
+import com.example.trello.common.exception.WorkspaceErrorCode;
+import com.example.trello.common.exception.WorkspaceException;
 import com.example.trello.user.User;
 import com.example.trello.user.UserRepository;
 import com.example.trello.workspace.dto.UpdateWorkspaceRequestDto;
@@ -32,7 +34,7 @@ public class WorkspaceService {
         User loginUser = userRepository.findByIdOrElseThrow(loginUserId);
 
         if (loginUser.getRole() != ADMIN) {
-            throw new RuntimeException("권한이 ADMIN 인 유저만 워크스페이스 생성이 가능합니다.");
+            throw new WorkspaceException(WorkspaceErrorCode.ONLY_ADMIN_CAN_CREATE_WORKSPACE);
         }
 
         Workspace workspace = Workspace.builder()
@@ -82,7 +84,7 @@ public class WorkspaceService {
         WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, workspaceId);
 
         if (findWorkspaceMember.getRole() != WORKSPACE) {
-            throw new RuntimeException("워크스페이스를 수정할 권한이 없습니다.");
+            throw new WorkspaceException(WorkspaceErrorCode.ONLY_WORKSPACE_ROLE_CAN_HANDLE_WORKSPACE);
         }
 
         Workspace workspace = findWorkspaceMember.getWorkspace();
@@ -97,7 +99,7 @@ public class WorkspaceService {
         WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, workspaceId);
 
         if (findWorkspaceMember.getRole() != WORKSPACE) {
-            throw new RuntimeException("워크스페이스를 삭제할 권한이 없습니다.");
+            throw new WorkspaceException(WorkspaceErrorCode.ONLY_WORKSPACE_ROLE_CAN_HANDLE_WORKSPACE);
         }
 
         Workspace workspace = findWorkspaceMember.getWorkspace();

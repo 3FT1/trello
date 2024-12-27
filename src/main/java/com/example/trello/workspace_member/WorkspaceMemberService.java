@@ -1,5 +1,9 @@
 package com.example.trello.workspace_member;
 
+import com.example.trello.common.exception.WorkspaceErrorCode;
+import com.example.trello.common.exception.WorkspaceException;
+import com.example.trello.common.exception.WorkspaceMemberErrorCode;
+import com.example.trello.common.exception.WorkspaceMemberException;
 import com.example.trello.user.User;
 import com.example.trello.user.UserRepository;
 import com.example.trello.workspace.WorkSpaceRepository;
@@ -30,7 +34,7 @@ public class WorkspaceMemberService {
         WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, workspaceId);
 
         if (findWorkspaceMember.getRole() != WORKSPACE) {
-            throw new RuntimeException("멤버를 초대할 권한이 없습니다.");
+            throw new WorkspaceMemberException(WorkspaceMemberErrorCode.ONLY_WORKSPACE_ROLE_CAN_INVITE);
         }
 
         User findUser = userRepository.findByEmailOrElseThrow(dto.getEmail());
@@ -52,11 +56,11 @@ public class WorkspaceMemberService {
         WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, workspaceId);
 
         if (dto.getRole() == WORKSPACE && findWorkspaceMember.getUser().getRole() != ADMIN) {
-            throw new RuntimeException("WORKSPACE 역할은 ADMIN 만 부여할 수 있습니다.");
+            throw new WorkspaceException(WorkspaceErrorCode.ONLY_ADMIN_CAN_UPDATE_MEMBER_ROLE_TO_WORKSPACE);
         }
 
         if (findWorkspaceMember.getRole() != WORKSPACE) {
-            throw new RuntimeException("멤버 역할을 수정할 권한이 없습니다.");
+            throw new WorkspaceMemberException(WorkspaceMemberErrorCode.ONLY_WORKSPACE_ROLE_CAN_UPDATE_MEMBER_ROLE);
         }
 
         WorkspaceMember roleUpdatedWorkspaceMember = workspaceMemberRepository.findByIdOrElseThrow(dto.getWorkspaceMemberId());

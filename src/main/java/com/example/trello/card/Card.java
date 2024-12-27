@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -35,11 +36,11 @@ public class Card {
 
     @Column(name = "start_at")
     @CreatedDate
-    private LocalDateTime startAt;
+    private LocalDate startAt;
 
     @Column(name = "end_at")
     @LastModifiedDate
-    private LocalDateTime endAt;
+    private LocalDate endAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private CardList cardList;
