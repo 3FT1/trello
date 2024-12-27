@@ -2,15 +2,18 @@ package com.example.trello.comment;
 
 import com.example.trello.card.Card;
 import com.example.trello.user.User;
+import com.example.trello.workspace_member.WorkspaceMember;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
 @Entity
 @Getter
-@DynamicInsert
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 public class Comment {
 
     @Id
@@ -20,18 +23,17 @@ public class Comment {
     @Column(name = "content")
     private String content;
 
-    @Column(name = "nikeName")
-    private String nikeName;
-
     @ManyToOne(fetch = FetchType.LAZY)
     private Card card;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    public Comment(String content, String nikeName, Card card, User user) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    private WorkspaceMember workspaceMember;
+
+    public Comment(String content, Card card, User user) {
         this.content = content;
-        this.nikeName = nikeName;
         this.card = card;
         this.user = user;
     }
