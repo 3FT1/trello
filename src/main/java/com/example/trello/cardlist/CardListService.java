@@ -2,14 +2,17 @@ package com.example.trello.cardlist;
 
 import com.example.trello.board.Board;
 import com.example.trello.board.BoardRepository;
-import com.example.trello.cardlist.dto.UpdateCardListRequestDto;
-import com.example.trello.cardlist.dto.CreateCardListRequestDto;
 import com.example.trello.cardlist.dto.CardListResponseDto;
+import com.example.trello.cardlist.dto.CreateCardListRequestDto;
+import com.example.trello.cardlist.dto.UpdateCardListRequestDto;
+import com.example.trello.common.exception.CardListException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static com.example.trello.common.exception.CardListErrorCode.INVALID_SEQUENCE;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +34,7 @@ public class CardListService {
     }
 
 
-    public CardListResponseDto findCardList(Long id) { //todo dto 이름 바꾸기
+    public CardListResponseDto findCardList(Long id) {
         CardList cardList = cardListRepository.findByIdOrElseThrow(id);
         return CardList.toDto(cardList);
     }
@@ -39,27 +42,26 @@ public class CardListService {
     @Transactional
     public CardListResponseDto moveSequence(Long id, UpdateCardListRequestDto requestDto) {
         CardList cardList = cardListRepository.findByIdOrElseThrow(id);
-        Integer currentSequence=cardList.getSequence();
-
+        Integer currentSequence = cardList.getSequence();
         List<CardList> cardLists = cardListRepository.findAllByBoardId(cardList.getBoard().getId());
 
-        if(currentSequence!=requestDto.getSequence()) {
-            if(currentSequence<requestDto.getSequence()) {
-                cardLists.stream()
-                        .filter(e->e.getSequence()>currentSequence)
-                        .filter(e->e.getSequence()<=requestDto.getSequence())
-                        .forEach(e->e.downSequence());
-            }else {
-                cardLists.stream()
-                        .filter(e->e.getSequence()<currentSequence)
-                        .filter(e->e.getSequence()>=requestDto.getSequence())
-                        .forEach(e->e.upSequence());
-            }
+        if (requestDto.getSequence() > cardLists.size()) {
+            throw new CardListException(INVALID_SEQUENCE);
         }
 
-        if (requestDto.getSequence()>cardLists.size()){
-
-            throw  new RuntimeException();
+        if (currentSequence != requestDto.getSequence()) {
+            if (currentSequence < requestDto.getSequence()) {
+                cardLists.stream()
+                        .filter(e -> e.getSequence() > currentSequence)
+                        .filter(e -> e.getSequence() <= requestDto.getSequence())
+                        .forEach(e -> e.downSequence());
+            } else {
+                cardLists.stream()
+                        .filter(e -> e.getSequence() < currentSequence)
+                        .filter(e -> e.getSequence() >= requestDto.getSequence())
+                        .forEach(e -> e.upSequence());
+            }
+            cardList.updateSequence(requestDto.getSequence());
         }
 
         return CardList.toDto(cardList);
@@ -68,7 +70,7 @@ public class CardListService {
     @Transactional
     public CardListResponseDto swapSequence(Long id, UpdateCardListRequestDto requestDto) {
         CardList cardList = cardListRepository.findByIdOrElseThrow(id);
-        CardList exchangeCardList = cardListRepository.findBySequenceAndBoardIdOrElseThrow(requestDto.getSequence(),cardList.getBoard().getId());
+        CardList exchangeCardList = cardListRepository.findBySequenceAndBoardIdOrElseThrow(requestDto.getSequence(), cardList.getBoard().getId());
         Integer temp = cardList.getSequence();
         cardList.update(requestDto, exchangeCardList.getSequence());
         exchangeCardList.updateSequence(temp);
