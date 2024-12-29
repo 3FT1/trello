@@ -69,4 +69,7 @@ public class Card {
         this.startAt = startAt;
         this.endAt = endAt;
     }
+
+
+
 }

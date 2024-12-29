@@ -1,9 +1,12 @@
 package com.example.trello.board;
 
 import com.example.trello.board.dto.*;
+import com.example.trello.config.auth.UserDetailsImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,33 +17,36 @@ import java.util.List;
 public class BoardController {
     private final BoardService boardService;
 
-    @PostMapping
-    public ResponseEntity<BoardResponseDto> createBoard(@RequestBody BoardRequestDto dto, @SessionAttribute("id") Long loginUserId) {
-        BoardResponseDto boardResponseDto = boardService.createBoard(dto.getWorkspaceId(), dto.getTitle(), dto.getColor(), dto.getImage(), loginUserId);
+    @PostMapping // 추가
+    public ResponseEntity<BoardResponseDto> createBoard(
+            @Valid @ModelAttribute BoardRequestDto dto, // 수정
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        BoardResponseDto boardResponseDto = boardService.createBoard(dto, userDetails.getUser().getId());
         return new ResponseEntity<>(boardResponseDto, HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<BoardResponseDto>> viewAllBoard(@RequestBody viewAllBoardRequestDto dto, @SessionAttribute("id") Long loginUserId) {
-        List<BoardResponseDto> boardResponseDtoList = boardService.viewAllBoard(dto.getWorkspaceId(), loginUserId);
+    public ResponseEntity<List<BoardResponseDto>> viewAllBoard(@Valid @RequestBody viewAllBoardRequestDto dto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List<BoardResponseDto> boardResponseDtoList = boardService.viewAllBoard(dto, userDetails.getUser().getId());
         return new ResponseEntity<>(boardResponseDtoList, HttpStatus.OK);
     }
 
     @GetMapping("/{boardId}")
-    public ResponseEntity<BoardDetailResponseDto> viewBoard(@PathVariable Long boardId, @SessionAttribute("id") Long loginUserId) {
-        BoardDetailResponseDto boardDetailResponseDto = boardService.viewBoard(boardId, loginUserId);
+    public ResponseEntity<BoardDetailResponseDto> viewBoard(@PathVariable Long boardId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        BoardDetailResponseDto boardDetailResponseDto = boardService.viewBoard(boardId, userDetails.getUser().getId());
         return new ResponseEntity<>(boardDetailResponseDto, HttpStatus.OK);
     }
 
     @PatchMapping("/{boardId}")
-    public ResponseEntity<BoardResponseDto> updateBoard(@PathVariable Long boardId, @RequestBody UpdateBoardRequestDto dto, @SessionAttribute("id") Long loginUserId) {
-        BoardResponseDto updatedBoardResponseDto = boardService.updateBoard(boardId, dto.getTitle(), dto.getColor(), dto.getImage(), loginUserId);
+    public ResponseEntity<BoardResponseDto> updateBoard(@PathVariable Long boardId, @Valid @ModelAttribute UpdateBoardRequestDto dto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        BoardResponseDto updatedBoardResponseDto = boardService.updateBoard(boardId, dto, userDetails.getUser().getId());
         return new ResponseEntity<>(updatedBoardResponseDto, HttpStatus.OK);
     }
 
     @DeleteMapping("/{boardId}")
-    public String deleteBoard(@PathVariable Long boardId, @SessionAttribute("id") Long loginUserId) {
-        boardService.deleteBoard(boardId, loginUserId);
+    public String deleteBoard(@PathVariable Long boardId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        boardService.deleteBoard(boardId, userDetails.getUser().getId());
         return "보드가 정상적으로 삭제되었습니다.";
     }
 }

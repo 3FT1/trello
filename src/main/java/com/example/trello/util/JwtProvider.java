@@ -97,8 +97,7 @@ public class JwtProvider {
      * @throws EntityNotFoundException 입력받은 이메일에 해당하는 사용자를 찾지 못했을 경우
      */
     private String generateTokenBy(String email) throws EntityNotFoundException {
-        User user = this.userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("해당 email에 맞는 값이 존재하지 않습니다."));
+        User user = this.userRepository.findByEmailOrElseThrow(email);
         Date currentDate = new Date();
         Date expireDate = new Date(currentDate.getTime() + this.expiryMillis);
 

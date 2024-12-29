@@ -1,7 +1,11 @@
 package com.example.trello.workspace;
 
+import com.example.trello.common.exception.WorkspaceErrorCode;
+import com.example.trello.common.exception.WorkspaceException;
 import com.example.trello.user.User;
 import com.example.trello.user.UserRepository;
+import com.example.trello.workspace.dto.UpdateWorkspaceRequestDto;
+import com.example.trello.workspace.dto.WorkspaceRequestDto;
 import com.example.trello.workspace.dto.WorkspaceResponseDto;
 
 
@@ -26,16 +30,16 @@ public class WorkspaceService {
     private final WorkspaceMemberRepository workspaceMemberRepository;
 
     @Transactional
-    public WorkspaceResponseDto createWorkspace(String title, String description, Long loginUserId) {
+    public WorkspaceResponseDto createWorkspace(WorkspaceRequestDto dto, Long loginUserId) {
         User loginUser = userRepository.findByIdOrElseThrow(loginUserId);
 
         if (loginUser.getRole() != ADMIN) {
-            throw new RuntimeException("권한이 ADMIN 인 유저만 워크스페이스 생성이 가능합니다.");
+            throw new WorkspaceException(WorkspaceErrorCode.ONLY_ADMIN_CAN_CREATE_WORKSPACE);
         }
 
         Workspace workspace = Workspace.builder()
-                .title(title)
-                .description(description)
+                .title(dto.getTitle())
+                .description(dto.getDescription())
                 .user(loginUser)
                 .build();
 
@@ -53,8 +57,7 @@ public class WorkspaceService {
 
     @Transactional(readOnly = true)
     public List<WorkspaceResponseDto> viewAllWorkspace(Long loginUserId) {
-        User findUser = userRepository.findByIdOrElseThrow(loginUserId);
-        List<WorkspaceMember> WorkspaceMemberListByUser = workspaceMemberRepository.findByUser(findUser);
+        List<WorkspaceMember> WorkspaceMemberListByUser = workspaceMemberRepository.findByUserId(loginUserId);
 
         List<Workspace> workspaceList = new ArrayList<>();
         for (WorkspaceMember workspaceMember : WorkspaceMemberListByUser) {
@@ -77,16 +80,16 @@ public class WorkspaceService {
     }
 
     @Transactional
-    public WorkspaceResponseDto updateWorkspace(Long workspaceId, String title, String description, Long loginUserId) {
+    public WorkspaceResponseDto updateWorkspace(Long workspaceId, UpdateWorkspaceRequestDto dto, Long loginUserId) {
         WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, workspaceId);
 
         if (findWorkspaceMember.getRole() != WORKSPACE) {
-            throw new RuntimeException("워크스페이스를 수정할 권한이 없습니다.");
+            throw new WorkspaceException(WorkspaceErrorCode.ONLY_WORKSPACE_ROLE_CAN_HANDLE_WORKSPACE);
         }
 
         Workspace workspace = findWorkspaceMember.getWorkspace();
 
-        workspace.updateWorkspace(title, description);
+        workspace.updateWorkspace(dto.getTitle(), dto.getDescription());
 
         return WorkspaceResponseDto.toDto(workspace);
     }
@@ -96,7 +99,7 @@ public class WorkspaceService {
         WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, workspaceId);
 
         if (findWorkspaceMember.getRole() != WORKSPACE) {
-            throw new RuntimeException("워크스페이스를 삭제할 권한이 없습니다.");
+            throw new WorkspaceException(WorkspaceErrorCode.ONLY_WORKSPACE_ROLE_CAN_HANDLE_WORKSPACE);
         }
 
         Workspace workspace = findWorkspaceMember.getWorkspace();

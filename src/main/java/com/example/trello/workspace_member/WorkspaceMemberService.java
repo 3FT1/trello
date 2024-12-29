@@ -1,9 +1,15 @@
 package com.example.trello.workspace_member;
 
+import com.example.trello.common.exception.WorkspaceErrorCode;
+import com.example.trello.common.exception.WorkspaceException;
+import com.example.trello.common.exception.WorkspaceMemberErrorCode;
+import com.example.trello.common.exception.WorkspaceMemberException;
 import com.example.trello.user.User;
 import com.example.trello.user.UserRepository;
 import com.example.trello.workspace.WorkSpaceRepository;
 import com.example.trello.workspace.Workspace;
+import com.example.trello.workspace_member.dto.UpdateWorkspaceMemberRoleDto;
+import com.example.trello.workspace_member.dto.WorkspaceMemberRequestDto;
 import com.example.trello.workspace_member.dto.WorkspaceMemberResponseDto;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,15 +30,19 @@ public class WorkspaceMemberService {
     private final UserRepository userRepository;
 
     @Transactional
-    public WorkspaceMemberResponseDto inviteWorkspaceMember(Long workspaceId, String email, Long loginUserId) {
+    public WorkspaceMemberResponseDto inviteWorkspaceMember(Long workspaceId, WorkspaceMemberRequestDto dto, Long loginUserId) {
         WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, workspaceId);
 
         if (findWorkspaceMember.getRole() != WORKSPACE) {
-            throw new RuntimeException("멤버를 초대할 권한이 없습니다.");
+            throw new WorkspaceMemberException(WorkspaceMemberErrorCode.ONLY_WORKSPACE_ROLE_CAN_INVITE);
         }
 
-        User findUser = userRepository.findByEmailOrElseThrow(email);
+        User findUser = userRepository.findByEmailOrElseThrow(dto.getEmail());
         Workspace workspace = findWorkspaceMember.getWorkspace();
+
+        if (workspaceMemberRepository.existsByUserIdAndWorkspaceId(findUser.getId(), workspace.getId())) {
+            throw new WorkspaceMemberException(WorkspaceMemberErrorCode.ALREADY_MEMBER);
+        }
 
         WorkspaceMember workspaceMember = WorkspaceMember.builder()
                 .user(findUser)
@@ -46,20 +56,20 @@ public class WorkspaceMemberService {
     }
 
     @Transactional
-    public void updateWorkspaceMemberRole(Long workspaceId, Long workspaceMemberId , WorkspaceMemberRole role, Long loginUserId) {
+    public void updateWorkspaceMemberRole(Long workspaceId, UpdateWorkspaceMemberRoleDto dto, Long loginUserId) {
         WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, workspaceId);
 
-        if (role == WORKSPACE && findWorkspaceMember.getUser().getRole() != ADMIN) {
-            throw new RuntimeException("WORKSPACE 역할은 ADMIN 만 부여할 수 있습니다.");
+        if (dto.getRole() == WORKSPACE && findWorkspaceMember.getUser().getRole() != ADMIN) {
+            throw new WorkspaceException(WorkspaceErrorCode.ONLY_ADMIN_CAN_UPDATE_MEMBER_ROLE_TO_WORKSPACE);
         }
 
         if (findWorkspaceMember.getRole() != WORKSPACE) {
-            throw new RuntimeException("멤버 역할을 수정할 권한이 없습니다.");
+            throw new WorkspaceMemberException(WorkspaceMemberErrorCode.ONLY_WORKSPACE_ROLE_CAN_UPDATE_MEMBER_ROLE);
         }
 
-        WorkspaceMember roleUpdatedWorkspaceMember = workspaceMemberRepository.findByIdOrElseThrow(workspaceMemberId);
+        WorkspaceMember roleUpdatedWorkspaceMember = workspaceMemberRepository.findByIdAndWorkspaceIdOrElseThrow(dto.getWorkspaceMemberId(), workspaceId);
 
-        roleUpdatedWorkspaceMember.updateRole(role);
-        log.info("{}의 역할이 {}로 변경되었습니다.", roleUpdatedWorkspaceMember.getUser().getNickname(), role);
+        roleUpdatedWorkspaceMember.updateRole(dto.getRole());
+        log.info("{}의 역할이 {}로 변경되었습니다.", roleUpdatedWorkspaceMember.getUser().getNickname(), dto.getRole());
     }
 }
