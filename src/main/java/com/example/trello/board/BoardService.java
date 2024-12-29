@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +37,7 @@ public class BoardService {
     private String bucket;
 
     @Transactional
-    public BoardResponseDto createBoard(BoardRequestWithFileDto dto, Long userId) {
+    public BoardResponseDto createBoard(BoardRequestDto dto, Long userId) {
         WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userId, dto.getWorkspaceId());
 
         if (findWorkspaceMember.getRole() == READ_ONLY) {
@@ -107,7 +106,12 @@ public class BoardService {
             throw new BoardException(BoardErrorCode.READ_ONLY_CANT_NOT_HANDLE_BOARD);
         }
 
-        findBoard.updateBoard(dto.getTitle(), dto.getColor(), dto.getImage());
+        String imageUrl = null;
+        if(dto.getFile() != null && !dto.getFile().isEmpty()) {
+            imageUrl = uploadFileToS3(dto.getFile());
+        }
+
+        findBoard.updateBoard(dto.getTitle(), dto.getColor(), imageUrl);
 
         return BoardResponseDto.toDto(findBoard);
     }

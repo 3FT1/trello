@@ -19,7 +19,7 @@ public class BoardController {
 
     @PostMapping // 추가
     public ResponseEntity<BoardResponseDto> createBoard(
-            @Valid @ModelAttribute BoardRequestWithFileDto dto, // 수정
+            @Valid @ModelAttribute BoardRequestDto dto, // 수정
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         BoardResponseDto boardResponseDto = boardService.createBoard(dto, userDetails.getUser().getId());
@@ -39,7 +39,7 @@ public class BoardController {
     }
 
     @PatchMapping("/{boardId}")
-    public ResponseEntity<BoardResponseDto> updateBoard(@PathVariable Long boardId, @Valid @RequestBody UpdateBoardRequestDto dto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<BoardResponseDto> updateBoard(@PathVariable Long boardId, @Valid @ModelAttribute UpdateBoardRequestDto dto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         BoardResponseDto updatedBoardResponseDto = boardService.updateBoard(boardId, dto, userDetails.getUser().getId());
         return new ResponseEntity<>(updatedBoardResponseDto, HttpStatus.OK);
     }

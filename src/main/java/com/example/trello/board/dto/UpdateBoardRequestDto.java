@@ -4,6 +4,7 @@ import com.example.trello.board.BoardColor;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 public class UpdateBoardRequestDto {
@@ -13,11 +14,11 @@ public class UpdateBoardRequestDto {
 
     private BoardColor color;
 
-    private String image;
+    private MultipartFile file;
 
-    public UpdateBoardRequestDto(String title, BoardColor color, String image) {
+    public UpdateBoardRequestDto(String title, BoardColor color, MultipartFile file) {
         this.title = title;
         this.color = color;
-        this.image = image;
+        this.file = file;
     }
 }

@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
-public class BoardRequestWithFileDto {
+public class BoardRequestDto {
     @NotBlank(message = "title 은 Null 일 수 없습니다.")
     @Size(min = 1, max = 50, message = "title 크기는 1에서 50사이여야합니다.")
     private String title;
@@ -20,7 +20,7 @@ public class BoardRequestWithFileDto {
     private Long workspaceId;
     private MultipartFile file;
 
-    public BoardRequestWithFileDto(String title, BoardColor color, Long workspaceId, MultipartFile file) {
+    public BoardRequestDto(String title, BoardColor color, Long workspaceId, MultipartFile file) {
         this.title = title;
         this.color = color;
         this.workspaceId = workspaceId;
