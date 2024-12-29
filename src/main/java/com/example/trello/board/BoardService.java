@@ -41,7 +41,7 @@ public class BoardService {
         WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userId, dto.getWorkspaceId());
 
         if (findWorkspaceMember.getRole() == READ_ONLY) {
-            throw new RuntimeException("읽기 전용 역할은 보드를 생성할 수 없습니다.");
+            throw new BoardException(BoardErrorCode.READ_ONLY_CANT_NOT_HANDLE_BOARD);
         }
 
         String imageUrl = null;
