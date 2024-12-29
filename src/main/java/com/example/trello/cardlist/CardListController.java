@@ -1,8 +1,8 @@
 package com.example.trello.cardlist;
 
-import com.example.trello.cardlist.dto.UpdateCardListRequestDto;
-import com.example.trello.cardlist.dto.CreateCardListRequestDto;
 import com.example.trello.cardlist.dto.CardListResponseDto;
+import com.example.trello.cardlist.dto.CreateCardListRequestDto;
+import com.example.trello.cardlist.dto.UpdateCardListRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +33,7 @@ public class CardListController {
         return new ResponseEntity<>(cardListResponseDto, HttpStatus.OK);
 
     }
+
     @PatchMapping("/{id}/exchange")
     public ResponseEntity<CardListResponseDto> swapCardList(@PathVariable Long id, @RequestBody UpdateCardListRequestDto requestDto) {
         CardListResponseDto cardListResponseDto = cardListService.swapSequence(id, requestDto);

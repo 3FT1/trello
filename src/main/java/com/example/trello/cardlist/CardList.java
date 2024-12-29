@@ -2,8 +2,8 @@ package com.example.trello.cardlist;
 
 import com.example.trello.board.Board;
 import com.example.trello.card.Card;
-import com.example.trello.cardlist.dto.UpdateCardListRequestDto;
 import com.example.trello.cardlist.dto.CardListResponseDto;
+import com.example.trello.cardlist.dto.UpdateCardListRequestDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,7 +39,7 @@ public class CardList {
                 .build();
     }
 
-    public void update(UpdateCardListRequestDto requestDto, Integer sequence ) {
+    public void update(UpdateCardListRequestDto requestDto, Integer sequence) {
         this.title = requestDto.getTitle();
         this.sequence = sequence;
 
@@ -54,6 +54,6 @@ public class CardList {
     }
 
     public void updateSequence(Integer sequence) {
-        this.sequence=sequence;
+        this.sequence = sequence;
     }
 }
