@@ -1,20 +1,25 @@
 package com.example.trello.board;
 
-import com.example.trello.board.dto.BoardDetailResponseDto;
-import com.example.trello.board.dto.BoardResponseDto;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.example.trello.board.dto.*;
 import com.example.trello.card.Card;
 import com.example.trello.card.cardrepository.CardRepository;
 import com.example.trello.card.dto.GetCardResponseDto;
 import com.example.trello.cardlist.CardList;
 import com.example.trello.cardlist.CardListRepository;
 import com.example.trello.cardlist.dto.GetCardListResponseDto;
+import com.example.trello.common.exception.*;
 import com.example.trello.workspace.Workspace;
 import com.example.trello.workspace_member.WorkspaceMember;
 import com.example.trello.workspace_member.WorkspaceMemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,36 +32,43 @@ public class BoardService {
     private final WorkspaceMemberRepository workspaceMemberRepository;
     private final CardListRepository cardListRepository;
     private final CardRepository cardRepository;
+    private final AmazonS3Client amazonS3Client;
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
     @Transactional
-    public BoardResponseDto createBoard(Long workspaceId, String title, String color, String image, Long loginUserId) {
-        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, workspaceId);
+    public BoardResponseDto createBoard(BoardRequestDto dto, Long userId) {
+        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userId, dto.getWorkspaceId());
 
         if (findWorkspaceMember.getRole() == READ_ONLY) {
             throw new RuntimeException("읽기 전용 역할은 보드를 생성할 수 없습니다.");
         }
 
+        String imageUrl = null;
+        if(dto.getFile() != null && !dto.getFile().isEmpty()) {
+            imageUrl = uploadFileToS3(dto.getFile());
+        }
+
         Workspace workspace = findWorkspaceMember.getWorkspace();
 
         Board board = Board.builder()
-                .title(title)
-                .color(color)
-                .image(image)
+                .title(dto.getTitle())
+                .color(dto.getColor())
+                .image(imageUrl)
                 .workspace(workspace)
                 .build();
 
         boardRepository.save(board);
-
         return BoardResponseDto.toDto(board);
     }
 
     @Transactional(readOnly = true)
-    public List<BoardResponseDto> viewAllBoard(Long workspaceId, Long loginUserId) {
-        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(loginUserId, workspaceId)) {
-            throw new RuntimeException("해당 워크스페이스의 멤버가 아닙니다.");
+    public List<BoardResponseDto> viewAllBoard(viewAllBoardRequestDto dto, Long loginUserId) {
+        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(loginUserId, dto.getWorkspaceId())) {
+            throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
         }
 
-        List<Board> findBoardList = boardRepository.findAllByWorkspaceId(workspaceId);
+        List<Board> findBoardList = boardRepository.findAllByWorkspaceId(dto.getWorkspaceId());
 
         return findBoardList
                 .stream()
@@ -69,7 +81,7 @@ public class BoardService {
         Board findBoard = boardRepository.findByIdOrElseThrow(boardId);
 
         if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(loginUserId, findBoard.getWorkspace().getId())) {
-            throw new RuntimeException("해당 워크스페이스의 멤버가 아닙니다.");
+            throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
         }
 
         List<CardList> findCardLists = cardListRepository.findByBoard(findBoard);
@@ -86,15 +98,20 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardResponseDto updateBoard(Long boardId, String title, String color, String image, Long loginUserId) {
+    public BoardResponseDto updateBoard(Long boardId, UpdateBoardRequestDto dto, Long loginUserId) {
         Board findBoard = boardRepository.findByIdOrElseThrow(boardId);
         WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, findBoard.getWorkspace().getId());
 
         if (findWorkspaceMember.getRole() == READ_ONLY) {
-            throw new RuntimeException("읽기 전용 역할은 보드를 수정할 수 없습니다.");
+            throw new BoardException(BoardErrorCode.READ_ONLY_CANT_NOT_HANDLE_BOARD);
         }
 
-        findBoard.updateBoard(title, color, image);
+        String imageUrl = null;
+        if(dto.getFile() != null && !dto.getFile().isEmpty()) {
+            imageUrl = uploadFileToS3(dto.getFile());
+        }
+
+        findBoard.updateBoard(dto.getTitle(), dto.getColor(), imageUrl);
 
         return BoardResponseDto.toDto(findBoard);
     }
@@ -105,9 +122,23 @@ public class BoardService {
         WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, findBoard.getWorkspace().getId());
 
         if (findWorkspaceMember.getRole() == READ_ONLY) {
-            throw new RuntimeException("읽기 전용 역할은 보드를 삭제할 수 없습니다.");
+            throw new BoardException(BoardErrorCode.READ_ONLY_CANT_NOT_HANDLE_BOARD);
         }
 
         boardRepository.delete(findBoard);
+    }
+
+    private String uploadFileToS3(MultipartFile file) {
+        try {
+            String fileName = file.getOriginalFilename();
+            String fileUrl = "https://" + bucket + "/test" + fileName;
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType(file.getContentType());
+            metadata.setContentLength(file.getSize());
+            amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
+            return fileUrl;
+        } catch (IOException e) {
+            throw new RuntimeException("파일 업로드에 실패했습니다.", e);
+        }
     }
 }

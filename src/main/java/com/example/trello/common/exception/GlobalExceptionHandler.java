@@ -18,6 +18,36 @@ public class GlobalExceptionHandler {
 
     }
 
+    @ExceptionHandler(WorkspaceException.class)
+    public ResponseEntity<ErrorResponse> handleCardListException(WorkspaceException e) {
+        ErrorResponse message = ErrorResponse.builder()
+                .errorCode(e.getWorkspaceErrorCode().name())
+                .message(e.getWorkspaceErrorCode().getMessage())
+                .build();
+        return new ResponseEntity<>(message, e.getWorkspaceErrorCode().getHttpStatus());
+
+    }
+
+    @ExceptionHandler(WorkspaceMemberException.class)
+    public ResponseEntity<ErrorResponse> handleCardListException(WorkspaceMemberException e) {
+        ErrorResponse message = ErrorResponse.builder()
+                .errorCode(e.getWorkspaceMemberErrorCode().name())
+                .message(e.getWorkspaceMemberErrorCode().getMessage())
+                .build();
+        return new ResponseEntity<>(message, e.getWorkspaceMemberErrorCode().getHttpStatus());
+
+    }
+
+    @ExceptionHandler(BoardException.class)
+    public ResponseEntity<ErrorResponse> handleCardListException(BoardException e) {
+        ErrorResponse message = ErrorResponse.builder()
+                .errorCode(e.getBoardErrorCode().name())
+                .message(e.getBoardErrorCode().getMessage())
+                .build();
+        return new ResponseEntity<>(message, e.getBoardErrorCode().getHttpStatus());
+
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidException(MethodArgumentNotValidException e) {
         ErrorResponse message = ErrorResponse.builder()
