@@ -2,8 +2,12 @@ package com.example.trello.user;
 
 import com.example.trello.user.enums.AccountStatus;
 import com.example.trello.user.enums.Role;
+import com.example.trello.workspace.Workspace;
+import com.example.trello.workspace_member.WorkspaceMember;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Entity
@@ -29,10 +33,12 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Setter
     @Column
     @Enumerated(EnumType.STRING)
     private AccountStatus status;
+
+    @OneToMany(mappedBy = "user")
+    private List<WorkspaceMember> workspaceMembers;
 
     @Builder
     public User(String email, String password, String nickname, Role role, AccountStatus status) {

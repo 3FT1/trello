@@ -1,5 +1,7 @@
 package com.example.trello.user;
 
+import com.example.trello.common.exception.UserErrorCode;
+import com.example.trello.common.exception.UserException;
 import com.example.trello.user.dto.JwtAuthResponse;
 import com.example.trello.user.dto.LoginRequestDto;
 import com.example.trello.user.dto.SignupRequestDto;
@@ -31,13 +33,9 @@ public class UserService {
     private final JwtProvider jwtProvider;
 
     public void signupUser(SignupRequestDto requestDto) {
-        Optional<User> findUser = userRepository.findByEmail(requestDto.getEmail());
+        boolean isUser = userRepository.existsByEmail(requestDto.getEmail());
 
-        if (findUser.isPresent()) {
-
-            if (AccountStatus.DELETED.equals(findUser.get().getStatus())) {
-                throw new RuntimeException();
-            }
+        if (isUser) {
             throw new RuntimeException();
         }
 
@@ -58,7 +56,7 @@ public class UserService {
         User findUser = userRepository.findByEmailOrElseThrow(requestDto.getEmail());
 
         if (findUser.isDeletedAccount(findUser)) {
-            throw new RuntimeException();
+            throw new UserException(UserErrorCode.ALREADY_DELETED);
         }
 
         this.validatePassword(requestDto.getPassword(), findUser.getPassword());
@@ -72,7 +70,7 @@ public class UserService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String accessToken = jwtProvider.generateToken(authentication);
-        log.info("토큰 생성: {}",accessToken);
+        log.info("토큰 생성: {}", accessToken);
 
         return new JwtAuthResponse(AuthenticationScheme.BEARER.getName(), accessToken);
     }
@@ -84,10 +82,10 @@ public class UserService {
     }
 
     private void validatePassword(String rawPassword, String encodedPassword)
-        throws RuntimeException {
+            throws RuntimeException {
         boolean notValid = !bCryptPasswordEncoder.matches(rawPassword, encodedPassword);
         if (notValid) {
-            throw new RuntimeException();
+            throw new UserException(UserErrorCode.PASSWORD_INCORRECT);
         }
     }
 }
