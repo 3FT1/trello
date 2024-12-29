@@ -17,8 +17,11 @@ import java.util.List;
 public class BoardController {
     private final BoardService boardService;
 
-    @PostMapping
-    public ResponseEntity<BoardResponseDto> createBoard(@Valid @RequestBody BoardRequestDto dto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    @PostMapping // 추가
+    public ResponseEntity<BoardResponseDto> createBoard(
+            @Valid @ModelAttribute BoardRequestWithFileDto dto, // 수정
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
         BoardResponseDto boardResponseDto = boardService.createBoard(dto, userDetails.getUser().getId());
         return new ResponseEntity<>(boardResponseDto, HttpStatus.CREATED);
     }

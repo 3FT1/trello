@@ -1,5 +1,7 @@
 package com.example.trello.board;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.example.trello.board.dto.*;
 import com.example.trello.card.Card;
 import com.example.trello.card.cardrepository.CardRepository;
@@ -12,9 +14,13 @@ import com.example.trello.workspace.Workspace;
 import com.example.trello.workspace_member.WorkspaceMember;
 import com.example.trello.workspace_member.WorkspaceMemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,13 +33,21 @@ public class BoardService {
     private final WorkspaceMemberRepository workspaceMemberRepository;
     private final CardListRepository cardListRepository;
     private final CardRepository cardRepository;
+    private final AmazonS3Client amazonS3Client;
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
     @Transactional
-    public BoardResponseDto createBoard(BoardRequestDto dto, Long loginUserId) {
-        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, dto.getWorkspaceId());
+    public BoardResponseDto createBoard(BoardRequestWithFileDto dto, Long userId) {
+        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userId, dto.getWorkspaceId());
 
         if (findWorkspaceMember.getRole() == READ_ONLY) {
-            throw new BoardException(BoardErrorCode.READ_ONLY_CANT_NOT_HANDLE_BOARD);
+            throw new RuntimeException("읽기 전용 역할은 보드를 생성할 수 없습니다.");
+        }
+
+        String imageUrl = null;
+        if(dto.getFile() != null && !dto.getFile().isEmpty()) {
+            imageUrl = uploadFileToS3(dto.getFile());
         }
 
         Workspace workspace = findWorkspaceMember.getWorkspace();
@@ -41,12 +55,11 @@ public class BoardService {
         Board board = Board.builder()
                 .title(dto.getTitle())
                 .color(dto.getColor())
-                .image(dto.getImage())
+                .image(imageUrl)
                 .workspace(workspace)
                 .build();
 
         boardRepository.save(board);
-
         return BoardResponseDto.toDto(board);
     }
 
@@ -109,5 +122,19 @@ public class BoardService {
         }
 
         boardRepository.delete(findBoard);
+    }
+
+    private String uploadFileToS3(MultipartFile file) {
+        try {
+            String fileName = file.getOriginalFilename();
+            String fileUrl = "https://" + bucket + "/test" + fileName;
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType(file.getContentType());
+            metadata.setContentLength(file.getSize());
+            amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
+            return fileUrl;
+        } catch (IOException e) {
+            throw new RuntimeException("파일 업로드에 실패했습니다.", e);
+        }
     }
 }
