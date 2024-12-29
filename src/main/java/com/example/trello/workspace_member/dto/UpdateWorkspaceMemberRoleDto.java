@@ -10,7 +10,7 @@ public class UpdateWorkspaceMemberRoleDto {
     @NotNull
     private Long workspaceMemberId;
 
-    @NotBlank
+    @NotNull
     private WorkspaceMemberRole role;
 
     public UpdateWorkspaceMemberRoleDto(Long workspaceMemberId, WorkspaceMemberRole role) {
