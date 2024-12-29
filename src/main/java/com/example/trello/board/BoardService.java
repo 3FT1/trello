@@ -10,6 +10,7 @@ import com.example.trello.cardlist.CardList;
 import com.example.trello.cardlist.CardListRepository;
 import com.example.trello.cardlist.dto.GetCardListResponseDto;
 import com.example.trello.common.exception.*;
+import com.example.trello.util.FileUploadUtil;
 import com.example.trello.workspace.Workspace;
 import com.example.trello.workspace_member.WorkspaceMember;
 import com.example.trello.workspace_member.WorkspaceMemberRepository;
@@ -43,6 +44,8 @@ public class BoardService {
         if (findWorkspaceMember.getRole() == READ_ONLY) {
             throw new BoardException(BoardErrorCode.READ_ONLY_CANT_NOT_HANDLE_BOARD);
         }
+
+        isValidExtension(dto.getFile());
 
         String imageUrl = null;
         if(dto.getFile() != null && !dto.getFile().isEmpty()) {
@@ -139,6 +142,13 @@ public class BoardService {
             return fileUrl;
         } catch (IOException e) {
             throw new RuntimeException("파일 업로드에 실패했습니다.", e);
+        }
+    }
+
+    public void isValidExtension(MultipartFile file) {
+        String fileName = file.getOriginalFilename();
+        if (!FileUploadUtil.isAllowedExtension(fileName)) {
+            throw new BoardException(BoardErrorCode.IS_NOT_ALLOWED_FILE_EXTENSION);
         }
     }
 }
