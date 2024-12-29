@@ -1,5 +1,8 @@
 package com.example.trello.user.controller;
 
+import com.example.trello.common.exception.UserErrorCode;
+import com.example.trello.common.exception.UserException;
+import com.example.trello.config.auth.UserDetailsImpl;
 import com.example.trello.user.User;
 import com.example.trello.user.UserService;
 import com.example.trello.user.dto.JwtAuthResponse;
@@ -12,7 +15,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.jaas.SecurityContextLoginModule;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -42,16 +48,15 @@ public class UserController {
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout(
-            HttpServletRequest httpServletRequest,
-            HttpServletResponse httpServletResponse,
-            Authentication authentication
-            ) throws RuntimeException {
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Authentication authentication) throws RuntimeException {
         if (authentication != null && authentication.isAuthenticated()) {
-            new SecurityContextLogoutHandler().logout(httpServletRequest, httpServletResponse, null);
+            new SecurityContextLogoutHandler().logout(request, response, null);
 
             return ResponseEntity.ok().body("로그아웃 되었습니다.");
         }
-        throw new RuntimeException();
+        throw new UserException(UserErrorCode.REQUIRED_LOGIN);
     }
 
     @DeleteMapping("/{userId}")
@@ -65,8 +70,11 @@ public class UserController {
 
         if (authentication != null && authentication.isAuthenticated()) {
             new SecurityContextLogoutHandler().logout(httpServletRequest, httpServletResponse, null);
-        }
 
-        return ResponseEntity.ok().body("회원 탈퇴가 정상적으로 처리되었습니다.");
+            return ResponseEntity.ok().body("회원 탈퇴가 정상적으로 처리되었습니다.");
+
+        }
+        throw new UserException(UserErrorCode.REQUIRED_LOGIN);
     }
+
 }

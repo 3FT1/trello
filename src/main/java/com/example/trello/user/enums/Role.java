@@ -7,8 +7,8 @@ import java.util.List;
 
 @Getter
 public enum Role {
-    USER("user"),
-    ADMIN("admin")
+    USER("USER"),
+    ADMIN("ADMIN")
 
     ;
     private final String name;
@@ -19,7 +19,7 @@ public enum Role {
 
     public static Role of(String roleName) throws IllegalArgumentException {
         for (Role role : values()) {
-            if (role.getName().equals(roleName.toLowerCase())) {
+            if (role.getName().equals(roleName.toUpperCase())) {
                 return role;
             }
         }
