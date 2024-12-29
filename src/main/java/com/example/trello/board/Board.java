@@ -20,7 +20,8 @@ public class Board {
     private String title;
 
     @Column(name = "color")
-    private String color;
+    @Enumerated(EnumType.STRING)
+    private BoardColor color;
 
     @Column(name = "image")
     private String image;
@@ -35,14 +36,14 @@ public class Board {
     }
 
     @Builder
-    public Board(String title, String color, String image, Workspace workspace) {
+    public Board(String title, BoardColor color, String image, Workspace workspace) {
         this.title = title;
         this.color = color;
         this.image = image;
         this.workspace = workspace;
     }
 
-    public void updateBoard(String title, String color, String image) {
+    public void updateBoard(String title, BoardColor color, String image) {
         this.title = title;
         this.color = color;
         this.image = image;

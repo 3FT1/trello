@@ -1,5 +1,6 @@
 package com.example.trello.board.dto;
 
+import com.example.trello.board.BoardColor;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -14,12 +15,12 @@ public class BoardRequestWithFileDto {
     @Size(min = 1, max = 50, message = "title 크기는 1에서 50사이여야합니다.")
     private String title;
 
-    private String color;
+    private BoardColor color;
     @NotNull
     private Long workspaceId;
     private MultipartFile file;
 
-    public BoardRequestWithFileDto(String title, String color, Long workspaceId, MultipartFile file) {
+    public BoardRequestWithFileDto(String title, BoardColor color, Long workspaceId, MultipartFile file) {
         this.title = title;
         this.color = color;
         this.workspaceId = workspaceId;
