@@ -19,7 +19,7 @@ public interface WorkspaceMemberRepository extends JpaRepository<WorkspaceMember
     Boolean existsByUserIdAndWorkspaceId(Long userId, Long workspaceId);
 
     default WorkspaceMember findByIdOrElseThrow(Long id){
-        return findById(id).orElseThrow(() -> new RuntimeException());
+        return findById(id).orElseThrow(() -> new WorkspaceMemberException(WorkspaceMemberErrorCode.CAN_NOT_FIND_WORKSPACEMEMBER_WITH_WORKSPACEMEMBER_ID));
     }
 
     default WorkspaceMember findByIdAndWorkspaceIdOrElseThrow(Long id, Long workspaceId){
