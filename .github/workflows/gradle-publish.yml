@@ -45,7 +45,7 @@ jobs:
                     if [ ! -z "$CONTAINER_ID" ]; then
                     sudo docker stop $CONTAINER_ID
                     sudo docker rm $CONTAINER_ID
-                    
+                    fi
             
             # 새 이미지 Pull 및 실행
                     sudo docker pull ${{ vars.DOCKERHUB_USERNAME }}/${{ vars.DOCKER_IMAGE_TAG_NAME }}:latest
