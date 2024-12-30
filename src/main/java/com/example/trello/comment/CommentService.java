@@ -5,14 +5,22 @@ import com.example.trello.card.cardrepository.CardRepository;
 import com.example.trello.comment.dto.request.CommentRequestDto;
 import com.example.trello.comment.dto.request.UpdateCommentRequestDto;
 import com.example.trello.comment.dto.response.CommentResponseDto;
-import com.example.trello.user.User;
+import com.example.trello.common.exception.CommentErrorCode;
+import com.example.trello.common.exception.CommentException;
+import com.example.trello.common.exception.WorkspaceMemberErrorCode;
+import com.example.trello.common.exception.WorkspaceMemberException;
+import com.example.trello.config.auth.UserDetailsImpl;
+import com.example.trello.notification.NotificationService;
+import com.example.trello.workspace.WorkSpaceRepository;
 import com.example.trello.workspace.Workspace;
 import com.example.trello.workspace_member.WorkspaceMember;
 import com.example.trello.workspace_member.WorkspaceMemberRepository;
-import jakarta.servlet.http.HttpServletRequest;
+import com.example.trello.workspace_member.WorkspaceMemberService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
+
+import static com.example.trello.notification.NotificationType.CREATE_COMMENT;
 
 @Service
 @RequiredArgsConstructor
@@ -20,36 +28,51 @@ public class CommentService {
     private final CardRepository cardRepository;
     private final CommentRepository commentRepository;
     private final WorkspaceMemberRepository workspaceMemberRepository;
+    private final WorkspaceMemberService workspaceMemberService;
+    private final NotificationService notificationService;
+    private final WorkSpaceRepository workSpaceRepository;
 
-
-    public CommentResponseDto createComment(CommentRequestDto requestDto, HttpServletRequest servletRequest) {
-
-        User user = (User) servletRequest.getSession().getAttribute("id");
+    @Transactional
+    public CommentResponseDto createComment(CommentRequestDto requestDto, UserDetailsImpl userDetails) {
 
         Card card = cardRepository.findByIdOrElseThrow(requestDto.getCardId());
 
-        WorkspaceMember workspaceMember = workspaceMemberRepository.findByIdOrElseThrow(requestDto.getWorkSpaceMemberId());
+        Long workSpaceId = card.getCardList().getBoard().getWorkspace().getId();
+
+        WorkspaceMember workspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userDetails.getUser().getId(), workSpaceId);
+
+        workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
 
         Comment comment = Comment.builder()
                 .content(requestDto.getContent())
                 .card(card)
-                .user(user)
+                .user(userDetails.getUser())
                 .workspaceMember(workspaceMember)
                 .build();
 
         commentRepository.save(comment);
 
+        Workspace workSpace = workSpaceRepository.findByIdOrElseThrow(workSpaceId);
+
+        notificationService.sendSlack(CREATE_COMMENT, workSpace);
         return CommentResponseDto.toDto(comment);
     }
 
-    public CommentResponseDto updateComment(Long commentId, UpdateCommentRequestDto requestDto, HttpServletRequest servletRequest) {
-
-        User user = (User) servletRequest.getSession().getAttribute("id");
+    @Transactional
+    public CommentResponseDto updateComment(Long commentId, UpdateCommentRequestDto requestDto, UserDetailsImpl userDetails) {
 
         Comment comment = commentRepository.findByIdOrElseThrow(commentId);
 
-        if (!user.getId().equals(comment.getWorkspaceMember().getUser().getId())) {
-            throw new RuntimeException();
+        Long workSpaceId = comment.getCard().getCardList().getBoard().getWorkspace().getId();
+
+        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(userDetails.getUser().getId(), workSpaceId)) {
+            throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
+        }
+
+        workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
+
+        if (!userDetails.getUser().getId().equals(comment.getWorkspaceMember().getUser().getId())) {
+            throw new CommentException(CommentErrorCode.CANNOT_BE_MODIFIED);
         }
 
         comment.updateComment(requestDto.getContent());
@@ -60,14 +83,21 @@ public class CommentService {
 
     }
 
-    public void deleteComment(Long commentId, HttpServletRequest servletRequest) {
-
-        User user = (User) servletRequest.getSession().getAttribute("id");
+    @Transactional
+    public void deleteComment(Long commentId, UserDetailsImpl userDetails) {
 
         Comment comment = commentRepository.findByIdOrElseThrow(commentId);
 
-        if (!user.getId().equals(comment.getWorkspaceMember().getUser().getId())) {
-            throw new RuntimeException();
+        Long workSpaceId = comment.getCard().getCardList().getBoard().getWorkspace().getId();
+
+        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(userDetails.getUser().getId(), workSpaceId)) {
+            throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
+        }
+
+        workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
+
+        if (!userDetails.getUser().getId().equals(comment.getWorkspaceMember().getUser().getId())) {
+            throw new CommentException(CommentErrorCode.CANNOT_BE_MODIFIED);
         }
 
         commentRepository.delete(comment);

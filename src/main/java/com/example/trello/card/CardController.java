@@ -1,14 +1,20 @@
 package com.example.trello.card;
 
+import com.example.trello.card.requestDto.FileNameRequestDto;
 import com.example.trello.card.responsedto.CardPageResponseDto;
 import com.example.trello.card.requestDto.CardRequestDto;
 import com.example.trello.card.responsedto.CardResponseDto;
 import com.example.trello.card.requestDto.UpdateCardRequestDto;
+import com.example.trello.config.auth.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 
 import java.time.LocalDate;
 
@@ -20,27 +26,32 @@ public class CardController {
 
     private final CardService cardService;
 
+
+    /**
+     * 카드 CRUD
+     */
+
     @PostMapping
-    public ResponseEntity<CardResponseDto> createdCard(@RequestBody CardRequestDto requestDto, @SessionAttribute("id") Long userid) {
-        CardResponseDto responseDto = cardService.createdCardService(requestDto, userid);
+    public ResponseEntity<CardResponseDto> createdCard(@RequestBody CardRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        CardResponseDto responseDto = cardService.createdCardService(requestDto, userDetails);
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
-    @PatchMapping("/{cardsId}/updateCards")
-    public ResponseEntity<CardResponseDto> updateCard(@PathVariable Long cardsId, @RequestBody UpdateCardRequestDto requestDto, @SessionAttribute("id") Long userid) {
-        CardResponseDto responseDto = cardService.updateCardService(cardsId, requestDto, userid);
+    @PatchMapping("/{cardId}")
+    public ResponseEntity<CardResponseDto> updateCard(@PathVariable Long cardId, @RequestBody UpdateCardRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        CardResponseDto responseDto = cardService.updateCardService(cardId, requestDto, userDetails);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{cardsId}")
-    public ResponseEntity<String> deleteCard(@PathVariable Long cardsId, @SessionAttribute("id") Long userid) {
-        cardService.deleteCardService(cardsId, userid);
+    @DeleteMapping("/{cardId}")
+    public ResponseEntity<String> deleteCard(@PathVariable Long cardId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        cardService.deleteCardService(cardId, userDetails);
         return new ResponseEntity<>("삭제 완료되었습니다", HttpStatus.OK);
     }
 
-    @GetMapping("/{cardsId}")
-    public ResponseEntity<CardResponseDto> findCard(@PathVariable Long cardsId) {
-        CardResponseDto responseDto = cardService.findCardById(cardsId);
+    @GetMapping("/{cardId}")
+    public ResponseEntity<CardResponseDto> findCard(@PathVariable Long cardId) {
+        CardResponseDto responseDto = cardService.findCardById(cardId);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
@@ -52,5 +63,33 @@ public class CardController {
                                                         @RequestParam(required = false) Long boardId) {
         CardPageResponseDto cards = cardService.searchCards(page, cardListId, startAt, endAt, boardId);
         return new ResponseEntity<>(cards, HttpStatus.OK);
+    }
+
+
+    /**
+     * 파일 업로드
+     */
+
+    @PostMapping(value = "/{cardId}/attachment", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> uploadAttachments(@PathVariable Long cardId,
+                                                     @RequestPart("file") MultipartFile file,
+                                                     @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        String fileUrl = cardService .uploadFile(cardId, file, userDetails);
+        return new ResponseEntity<>(fileUrl + "업로드 완료", HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{cardId}/attachment")
+    public ResponseEntity<String> deleteFile(@PathVariable Long cardId,
+                                             @RequestBody FileNameRequestDto requestDto,
+                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        cardService.deleteFile(cardId, requestDto.getFileName(), userDetails);
+        return new ResponseEntity<>("삭제 완료되었습니다", HttpStatus.OK);
+    }
+
+    @GetMapping("/{cardId}/attachment")
+    public ResponseEntity<String> getFileUrl(@PathVariable Long cardId,
+                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return new ResponseEntity<>(cardService.getFile(cardId, userDetails), HttpStatus.OK);
+
     }
 }
