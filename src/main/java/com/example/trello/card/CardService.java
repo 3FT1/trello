@@ -91,11 +91,13 @@ public class CardService {
     public CardResponseDto updateCardService(Long cardId, UpdateCardRequestDto requestDto, UserDetailsImpl userDetails) {
         Card card = cardRepository.findByIdOrElseThrow(cardId);
 
-        WorkspaceMember workspaceMember = findWorkSpaceMember(userDetails, cardId);
+        WorkspaceMember changeWorkspaceMember = workspaceMemberRepository.findByIdOrElseThrow(requestDto.getWorkspaceMemberId());
 
         CardList cardList = cardRepository.findByIdOrElseThrow(requestDto.getCardListId()).getCardList();
 
-        UpdateCardResponseDto responseDto = new UpdateCardResponseDto(cardList, requestDto.getTitle(), requestDto.getDescription(), requestDto.getStartAt(), requestDto.getEndAt());
+        UpdateCardResponseDto responseDto = new UpdateCardResponseDto(cardList, requestDto.getTitle(), requestDto.getDescription(), changeWorkspaceMember, requestDto.getStartAt(), requestDto.getEndAt());
+
+        WorkspaceMember workspaceMember = findWorkSpaceMember(userDetails, cardId);
 
         if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(workspaceMember.getId(), card.getCardList().getBoard().getWorkspace().getId())) {
             throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);

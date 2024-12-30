@@ -15,7 +15,7 @@ public class UpdateCardRequestDto {
 
     private String description;
 
-    private Long workSpaceMemberId;
+    private Long workspaceMemberId;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate startAt;
@@ -23,11 +23,11 @@ public class UpdateCardRequestDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate endAt;
 
-    public UpdateCardRequestDto(String title, Long cardListId, String description, Long workSpaceMemberId, LocalDate startAt, LocalDate endAt) {
+    public UpdateCardRequestDto(String title, Long cardListId, String description, Long workspaceMemberId, LocalDate startAt, LocalDate endAt) {
         this.title = title;
         this.CardListId = cardListId;
         this.description = description;
-        this.workSpaceMemberId = workSpaceMemberId;
+        this.workspaceMemberId = workspaceMemberId;
         this.startAt = startAt;
         this.endAt = endAt;
     }
