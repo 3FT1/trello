@@ -40,6 +40,7 @@ public class WorkspaceService {
         Workspace workspace = Workspace.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
+                .slackUrl(dto.getSlackUrl())
                 .user(loginUser)
                 .build();
 
@@ -89,7 +90,7 @@ public class WorkspaceService {
 
         Workspace workspace = findWorkspaceMember.getWorkspace();
 
-        workspace.updateWorkspace(dto.getTitle(), dto.getDescription());
+        workspace.updateWorkspace(dto.getTitle(), dto.getDescription(), dto.getSlackUrl());
 
         return WorkspaceResponseDto.toDto(workspace);
     }

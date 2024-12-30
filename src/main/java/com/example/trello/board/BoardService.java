@@ -1,5 +1,6 @@
 package com.example.trello.board;
 
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.example.trello.board.dto.*;
@@ -13,7 +14,6 @@ import com.example.trello.common.exception.*;
 import com.example.trello.util.FileUploadUtil;
 import com.example.trello.workspace.WorkSpaceRepository;
 import com.example.trello.workspace.Workspace;
-import com.example.trello.workspace_member.WorkspaceMember;
 import com.example.trello.workspace_member.WorkspaceMemberRepository;
 import com.example.trello.workspace_member.WorkspaceMemberService;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.example.trello.common.exception.WorkspaceMemberErrorCode.CAN_NOT_READ_ROLE;
-import static com.example.trello.workspace_member.WorkspaceMemberRole.READ_ONLY;
 
 @Service
 @RequiredArgsConstructor
@@ -104,6 +101,7 @@ public class BoardService {
     public BoardResponseDto updateBoard(Long boardId, UpdateBoardRequestDto dto, Long loginUserId) {
         Board findBoard = boardRepository.findByIdOrElseThrow(boardId);
         workspaceMemberService.CheckReadRole(loginUserId, findBoard.getWorkspace().getId());
+        deleteFile(findBoard.getImage());
 
         String imageUrl = null;
         if(dto.getFile() != null && !dto.getFile().isEmpty()) {
@@ -119,6 +117,7 @@ public class BoardService {
     public void deleteBoard(Long boardId, Long loginUserId) {
         Board findBoard = boardRepository.findByIdOrElseThrow(boardId);
         workspaceMemberService.CheckReadRole(loginUserId, findBoard.getWorkspace().getId());
+        deleteFile(findBoard.getImage());
 
         boardRepository.delete(findBoard);
     }
@@ -134,6 +133,15 @@ public class BoardService {
             return fileUrl;
         } catch (IOException e) {
             throw new RuntimeException("파일 업로드에 실패했습니다.", e);
+        }
+    }
+
+    public void deleteFile(String image) {
+        try {
+            String fileName = image.substring(24);
+            amazonS3Client.deleteObject(bucket, fileName);
+        } catch (SdkClientException e) {
+            throw new RuntimeException("Error deleting file from S3", e);
         }
     }
 
