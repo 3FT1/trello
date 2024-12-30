@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import static com.example.trello.common.exception.WorkspaceMemberErrorCode.CAN_NOT_READ_ROLE;
 import static com.example.trello.user.enums.Role.ADMIN;
 import static com.example.trello.workspace_member.WorkspaceMemberRole.READ_ONLY;
 import static com.example.trello.workspace_member.WorkspaceMemberRole.WORKSPACE;
@@ -71,5 +72,12 @@ public class WorkspaceMemberService {
 
         roleUpdatedWorkspaceMember.updateRole(dto.getRole());
         log.info("{}의 역할이 {}로 변경되었습니다.", roleUpdatedWorkspaceMember.getUser().getNickname(), dto.getRole());
+    }
+
+    public void CheckReadRole(Long userId,Long workspaceId) {
+        WorkspaceMember workspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userId, workspaceId);
+        if(workspaceMember.getRole()==READ_ONLY) {
+            throw  new WorkspaceMemberException(CAN_NOT_READ_ROLE);
+        }
     }
 }
