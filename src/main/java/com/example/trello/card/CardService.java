@@ -12,11 +12,15 @@ import com.example.trello.card.requestDto.UpdateCardRequestDto;
 import com.example.trello.card.responsedto.UpdateCardResponseDto;
 import com.example.trello.cardlist.CardList;
 import com.example.trello.cardlist.CardListRepository;
+import com.example.trello.common.exception.CardErrorCoed;
+import com.example.trello.common.exception.CardException;
 import com.example.trello.common.exception.WorkspaceMemberErrorCode;
 import com.example.trello.common.exception.WorkspaceMemberException;
 import com.example.trello.config.auth.UserDetailsImpl;
+import com.example.trello.util.FileUploadUtil;
 import com.example.trello.workspace_member.WorkspaceMember;
 import com.example.trello.workspace_member.WorkspaceMemberRepository;
+import com.example.trello.workspace_member.WorkspaceMemberService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,7 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
+import static com.example.trello.util.FileUploadUtil.isAllowedExtension;
 import static com.example.trello.workspace_member.WorkspaceMemberRole.WORKSPACE;
 
 @Service
@@ -45,6 +49,7 @@ public class CardService {
     private final CardListRepository cardListRepository;
     private final WorkspaceMemberRepository workspaceMemberRepository;
     private final AmazonS3Client amazonS3Client;
+    private final WorkspaceMemberService workspaceMemberService;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
@@ -67,9 +72,9 @@ public class CardService {
             throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
         }
 
-        if (workspaceMember.getRole() != WORKSPACE) {
-            throw new RuntimeException("카드를 생성할 권한이 없습니다.");
-        }
+        Long workSpaceId = cardList.getBoard().getWorkspace().getId();
+
+        workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
 
         Card card = Card.builder()
                 .title(requestDto.getTitle())
@@ -99,9 +104,8 @@ public class CardService {
             throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
         }
 
-        if (workspaceMember.getRole() != WORKSPACE) {
-            throw new RuntimeException("카드를 수정할 권한이 없습니다.");
-        }
+        Long workSpaceId = card.getCardList().getBoard().getWorkspace().getId();
+        workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
 
         card.updateCard(responseDto);
 
@@ -121,9 +125,9 @@ public class CardService {
             throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
         }
 
-        if (workspaceMember.getRole() != WORKSPACE) {
-            throw new RuntimeException("카드를 삭제할 권한이 없습니다.");
-        }
+        Long workSpaceId = card.getCardList().getBoard().getWorkspace().getId();
+
+        workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
 
         cardRepository.delete(card);
     }
@@ -165,22 +169,13 @@ public class CardService {
             throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
         }
 
+        Long workSpaceId = card.getCardList().getBoard().getWorkspace().getId();
 
-        if (workspaceMember.getRole() != WORKSPACE) {
-            throw new RuntimeException("파일을 업로드할 권한이 없습니다.");
-        }
+        workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
 
         // 파일 형식 예외처리
-        List<String> contentTypeList = new ArrayList<>();
-        contentTypeList.add("jpg");
-        contentTypeList.add("png");
-        contentTypeList.add("pdf");
-        contentTypeList.add("csv");
-
-        if (StringUtils.hasText(file.getContentType())) {
-                if (!contentTypeList.contains(file.getName().substring(file.getName().lastIndexOf('.') + 1).toLowerCase())) {
-                    throw new RuntimeException("지원하지 않는 파일 형식입니다");
-                }
+        if (!isAllowedExtension(file.getOriginalFilename())) {
+            throw new CardException(CardErrorCoed.FORMAT_NOT_SUPPORTED);
         }
 
 
@@ -188,7 +183,7 @@ public class CardService {
         long maxSize = 5 * 1024 * 1024;
 
         if (file.getSize() > maxSize) {
-            throw new RuntimeException("파일의 크기가 5MB를 넘었습니다 파일의 크기를 줄여주세요");
+            throw new CardException(CardErrorCoed.FILE_SIZE_EXCEEDED);
         }
 
         String fileName = file.getOriginalFilename();
@@ -217,13 +212,13 @@ public class CardService {
             throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
         }
 
-        if (workspaceMember.getRole() != WORKSPACE) {
-            throw new RuntimeException("파일을 삭제할 권한이 없습니다.");
-        }
+        Long workSpaceId = card.getCardList().getBoard().getWorkspace().getId();
 
-//        if (card.getFileName() == null) {
-//            throw new RuntimeException();
-//        }
+        workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
+
+        if (!card.getFileName().equals(fileName)) {
+            throw new RuntimeException();
+        }
 
         card.deleteFile();
         amazonS3Client.deleteObject(bucketName, fileName);
@@ -233,6 +228,16 @@ public class CardService {
     public String getFile(Long cardId, UserDetailsImpl userDetails) {
 
         Card card = cardRepository.findByIdOrElseThrow(cardId);
+
+        WorkspaceMember workspaceMember = findWorkSpaceMember(userDetails, cardId);
+
+        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(workspaceMember.getId(), card.getCardList().getBoard().getWorkspace().getId())) {
+            throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
+        }
+
+        Long workSpaceId = card.getCardList().getBoard().getWorkspace().getId();
+
+        workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
 
         try {
             return amazonS3Client.getUrl(bucketName, card.getFileName()).toString();
