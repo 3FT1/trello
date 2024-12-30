@@ -28,6 +28,7 @@ public class CardListService {
 
     @Transactional
     public CardListResponseDto create(CreateCardListRequestDto requestDto, User user) {
+        System.out.println("test");
         Board board = boardRepository.findByIdOrElseThrow(requestDto.getBoardId());
         workspaceMemberService.checkReadRole(user.getId(), board.getWorkspace().getId());
         maxSequence = cardListRepository.findByMax(board.getId()).orElse(0);
