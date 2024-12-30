@@ -1,0 +1,38 @@
+version: '3'
+services:
+  app:
+    image: trello:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      BUCKET_ACCESSKEY: ${BUCKET_ACCESSKEY}
+      BUCKET_SECRETKEY: ${BUCKET_SECRETKEY}
+      BUCKET_NAME: ${BUCKET_NAME}
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/trello?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 1111
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: my-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 1111
+      MYSQL_DATABASE: trello
+      MYSQL_USER: demo
+      MYSQL_PASSWORD: demo
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+
+volumes:
+  db_data:
