@@ -4,6 +4,7 @@ import com.example.trello.common.exception.WorkspaceErrorCode;
 import com.example.trello.common.exception.WorkspaceException;
 import com.example.trello.common.exception.WorkspaceMemberErrorCode;
 import com.example.trello.common.exception.WorkspaceMemberException;
+import com.example.trello.notification.NotificationService;
 import com.example.trello.user.User;
 import com.example.trello.user.UserRepository;
 import com.example.trello.workspace.WorkSpaceRepository;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import static com.example.trello.common.exception.WorkspaceMemberErrorCode.CAN_NOT_READ_ROLE;
+import static com.example.trello.notification.NotificationType.ADD_MEMBER;
 import static com.example.trello.user.enums.Role.ADMIN;
 import static com.example.trello.workspace_member.WorkspaceMemberRole.READ_ONLY;
 import static com.example.trello.workspace_member.WorkspaceMemberRole.WORKSPACE;
@@ -29,6 +31,7 @@ public class WorkspaceMemberService {
     private final WorkspaceMemberRepository workspaceMemberRepository;
     private final WorkSpaceRepository workSpaceRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public WorkspaceMemberResponseDto inviteWorkspaceMember(Long workspaceId, WorkspaceMemberRequestDto dto, Long loginUserId) {
@@ -52,6 +55,7 @@ public class WorkspaceMemberService {
                 .build();
 
         workspaceMemberRepository.save(workspaceMember);
+        notificationService.sendSlack(ADD_MEMBER, workspace);
 
         return WorkspaceMemberResponseDto.toDto(workspaceMember);
     }

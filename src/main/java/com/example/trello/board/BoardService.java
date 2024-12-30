@@ -11,9 +11,11 @@ import com.example.trello.cardlist.CardListRepository;
 import com.example.trello.cardlist.dto.GetCardListResponseDto;
 import com.example.trello.common.exception.*;
 import com.example.trello.util.FileUploadUtil;
+import com.example.trello.workspace.WorkSpaceRepository;
 import com.example.trello.workspace.Workspace;
 import com.example.trello.workspace_member.WorkspaceMember;
 import com.example.trello.workspace_member.WorkspaceMemberRepository;
+import com.example.trello.workspace_member.WorkspaceMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,35 +26,33 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.trello.common.exception.WorkspaceMemberErrorCode.CAN_NOT_READ_ROLE;
 import static com.example.trello.workspace_member.WorkspaceMemberRole.READ_ONLY;
 
 @Service
 @RequiredArgsConstructor
 public class BoardService {
     private final BoardRepository boardRepository;
+    private final WorkspaceMemberService workspaceMemberService;
     private final WorkspaceMemberRepository workspaceMemberRepository;
     private final CardListRepository cardListRepository;
     private final CardRepository cardRepository;
     private final AmazonS3Client amazonS3Client;
+    private final WorkSpaceRepository workSpaceRepository;
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
     @Transactional
-    public BoardResponseDto createBoard(BoardRequestDto dto, Long userId) {
-        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userId, dto.getWorkspaceId());
-
-        if (findWorkspaceMember.getRole() == READ_ONLY) {
-            throw new BoardException(BoardErrorCode.READ_ONLY_CANT_NOT_HANDLE_BOARD);
-        }
-
-        isValidExtension(dto.getFile());
+    public BoardResponseDto createBoard(BoardRequestDto dto, Long loginUserId) {
+        workspaceMemberService.CheckReadRole(loginUserId, dto.getWorkspaceId());
+        isValidBoardImage(dto.getFile());
 
         String imageUrl = null;
         if(dto.getFile() != null && !dto.getFile().isEmpty()) {
             imageUrl = uploadFileToS3(dto.getFile());
         }
 
-        Workspace workspace = findWorkspaceMember.getWorkspace();
+        Workspace workspace = workSpaceRepository.findByIdOrElseThrow(dto.getWorkspaceId());
 
         Board board = Board.builder()
                 .title(dto.getTitle())
@@ -103,11 +103,7 @@ public class BoardService {
     @Transactional
     public BoardResponseDto updateBoard(Long boardId, UpdateBoardRequestDto dto, Long loginUserId) {
         Board findBoard = boardRepository.findByIdOrElseThrow(boardId);
-        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, findBoard.getWorkspace().getId());
-
-        if (findWorkspaceMember.getRole() == READ_ONLY) {
-            throw new BoardException(BoardErrorCode.READ_ONLY_CANT_NOT_HANDLE_BOARD);
-        }
+        workspaceMemberService.CheckReadRole(loginUserId, findBoard.getWorkspace().getId());
 
         String imageUrl = null;
         if(dto.getFile() != null && !dto.getFile().isEmpty()) {
@@ -122,11 +118,7 @@ public class BoardService {
     @Transactional
     public void deleteBoard(Long boardId, Long loginUserId) {
         Board findBoard = boardRepository.findByIdOrElseThrow(boardId);
-        WorkspaceMember findWorkspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(loginUserId, findBoard.getWorkspace().getId());
-
-        if (findWorkspaceMember.getRole() == READ_ONLY) {
-            throw new BoardException(BoardErrorCode.READ_ONLY_CANT_NOT_HANDLE_BOARD);
-        }
+        workspaceMemberService.CheckReadRole(loginUserId, findBoard.getWorkspace().getId());
 
         boardRepository.delete(findBoard);
     }
@@ -145,7 +137,7 @@ public class BoardService {
         }
     }
 
-    public void isValidExtension(MultipartFile file) {
+    public void isValidBoardImage(MultipartFile file) {
         String fileName = file.getOriginalFilename();
         if (!FileUploadUtil.isAllowedExtension(fileName)) {
             throw new BoardException(BoardErrorCode.IS_NOT_ALLOWED_FILE_EXTENSION);
