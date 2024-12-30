@@ -45,8 +45,8 @@ public class WorkspaceController {
     }
 
     @DeleteMapping("/{workspaceId}")
-    public String deleteWorkspace(@PathVariable Long workspaceId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<String> deleteWorkspace(@PathVariable Long workspaceId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         workspaceService.deleteWorkspace(workspaceId, userDetails.getUser().getId());
-        return "워크스페이스가 정상적으로 삭제되었습니다.";
+        return new ResponseEntity<>("워크스페이스가 정상적으로 삭제되었습니다.", HttpStatus.OK);
     }
 }
