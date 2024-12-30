@@ -2,6 +2,7 @@ package com.example.trello.card;
 
 import com.example.trello.card.requestDto.UpdateCardRequestDto;
 import com.example.trello.card.responsedto.CardResponseDto;
+import com.example.trello.card.responsedto.UpdateCardResponseDto;
 import com.example.trello.cardlist.CardList;
 import com.example.trello.comment.Comment;
 import com.example.trello.workspace_member.WorkspaceMember;
@@ -31,8 +32,8 @@ public class Card {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "image")
-    private String image;
+    @Column(name = "fileName")
+    private String fileName;
 
     @Column(name = "start_at")
     private LocalDate startAt;
@@ -51,6 +52,7 @@ public class Card {
 
 
 
+
     @Builder
     public Card(String title, String description, WorkspaceMember workspaceMember, LocalDate startAt, LocalDate endAt,CardList cardList) {
         this.title = title;
@@ -62,12 +64,16 @@ public class Card {
     }
 
 
-    public void updateCard(CardList cardList, String title, String description, LocalDate startAt, LocalDate endAt) {
-        this.cardList = cardList;
-        this.title = title;
-        this.description = description;
-        this.startAt = startAt;
-        this.endAt = endAt;
+    public void updateCard(UpdateCardResponseDto responseDto) {
+        this.cardList = responseDto.getCardList();
+        this.title = responseDto.getTitle();
+        this.description = responseDto.getDescription();
+        this.startAt = responseDto.getStartAt();
+        this.endAt = responseDto.getEndAt();
+    }
+
+    public void uploadFile(String fileName) {
+        this.fileName = fileName;
     }
 
 

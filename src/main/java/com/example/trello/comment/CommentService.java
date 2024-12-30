@@ -5,6 +5,8 @@ import com.example.trello.card.cardrepository.CardRepository;
 import com.example.trello.comment.dto.request.CommentRequestDto;
 import com.example.trello.comment.dto.request.UpdateCommentRequestDto;
 import com.example.trello.comment.dto.response.CommentResponseDto;
+import com.example.trello.common.exception.WorkspaceMemberErrorCode;
+import com.example.trello.common.exception.WorkspaceMemberException;
 import com.example.trello.config.auth.UserDetailsImpl;
 import com.example.trello.user.User;
 import com.example.trello.workspace.Workspace;
@@ -35,6 +37,11 @@ public class CommentService {
 
         WorkspaceMember workspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userDetails.getUser().getId(), workspaceId);
 
+        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(workspaceMember.getId(), card.getCardList().getBoard().getWorkspace().getId())) {
+            throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
+        }
+
+
         if (workspaceMember.getRole() != WORKSPACE) {
             throw new RuntimeException("댓글을 생성할 권한이 없습니다.");
         }
@@ -54,12 +61,16 @@ public class CommentService {
     @Transactional
     public CommentResponseDto updateComment(Long commentId, UpdateCommentRequestDto requestDto, UserDetailsImpl userDetails) {
 
-
         Comment comment = commentRepository.findByIdOrElseThrow(commentId);
 
         Long workspaceId = comment.getCard().getCardList().getBoard().getWorkspace().getId();
 
         WorkspaceMember workspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userDetails.getUser().getId(), workspaceId);
+
+        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(workspaceMember.getId(), comment.getCard().getCardList().getBoard().getWorkspace().getId())) {
+            throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
+        }
+
 
         if (workspaceMember.getRole() != WORKSPACE) {
             throw new RuntimeException("댓글을 수정할 권한이 없습니다.");
@@ -85,6 +96,10 @@ public class CommentService {
         Long workspaceId = comment.getCard().getCardList().getBoard().getWorkspace().getId();
 
         WorkspaceMember workspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userDetails.getUser().getId(), workspaceId);
+
+        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(workspaceMember.getId(), comment.getCard().getCardList().getBoard().getWorkspace().getId())) {
+            throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
+        }
 
         if (workspaceMember.getRole() != WORKSPACE) {
             throw new RuntimeException("댓글을 삭제할 권한이 없습니다.");
