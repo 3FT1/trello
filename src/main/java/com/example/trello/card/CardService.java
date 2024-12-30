@@ -162,15 +162,13 @@ public class CardService {
     @Transactional
     public String uploadFile(Long cardId, MultipartFile file, UserDetailsImpl userDetails)  {
 
-        WorkspaceMember workspaceMember = findWorkSpaceMember(userDetails, cardId);
-
         Card card = cardRepository.findByIdOrElseThrow(cardId);
 
-        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(workspaceMember.getId(), card.getCardList().getBoard().getWorkspace().getId())) {
+        Long workSpaceId = card.getCardList().getBoard().getWorkspace().getId();
+
+        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(userDetails.getUser().getId(), workSpaceId)) {
             throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
         }
-
-        Long workSpaceId = card.getCardList().getBoard().getWorkspace().getId();
 
         workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
 
@@ -207,13 +205,11 @@ public class CardService {
     public void deleteFile(Long cardId, String fileName, UserDetailsImpl userDetails) {
         Card card = cardRepository.findByIdOrElseThrow(cardId);
 
-        WorkspaceMember workspaceMember = findWorkSpaceMember(userDetails, cardId);
+        Long workSpaceId = card.getCardList().getBoard().getWorkspace().getId();
 
-        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(workspaceMember.getId(), card.getCardList().getBoard().getWorkspace().getId())) {
+        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(userDetails.getUser().getId(), workSpaceId)) {
             throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
         }
-
-        Long workSpaceId = card.getCardList().getBoard().getWorkspace().getId();
 
         workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
 
@@ -230,9 +226,9 @@ public class CardService {
 
         Card card = cardRepository.findByIdOrElseThrow(cardId);
 
-        WorkspaceMember workspaceMember = findWorkSpaceMember(userDetails, cardId);
+        Long workSpaceId = card.getCardList().getBoard().getWorkspace().getId();
 
-        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(workspaceMember.getId(), card.getCardList().getBoard().getWorkspace().getId())) {
+        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(userDetails.getUser().getId(), workSpaceId)) {
             throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
         }
 

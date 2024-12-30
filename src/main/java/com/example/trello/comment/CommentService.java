@@ -42,16 +42,13 @@ public class CommentService {
 
         Card card = cardRepository.findByIdOrElseThrow(requestDto.getCardId());
 
-        Long workspaceId = card.getCardList().getBoard().getWorkspace().getId();
+        Long workSpaceId = card.getCardList().getBoard().getWorkspace().getId();
 
-        WorkspaceMember workspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userDetails.getUser().getId(), workspaceId);
+        WorkspaceMember workspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userDetails.getUser().getId(), workSpaceId);
 
         if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(workspaceMember.getId(), card.getCardList().getBoard().getWorkspace().getId())) {
             throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
         }
-
-
-        Long workSpaceId = card.getCardList().getBoard().getWorkspace().getId();
 
         workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
 
@@ -64,7 +61,7 @@ public class CommentService {
 
         commentRepository.save(comment);
 
-        Workspace workSpace = workSpaceRepository.findByIdOrElseThrow(workspaceId);
+        Workspace workSpace = workSpaceRepository.findByIdOrElseThrow(workSpaceId);
 
         notificationService.sendSlack(CREATE_COMMENT, workSpace);
         return CommentResponseDto.toDto(comment);
@@ -77,10 +74,7 @@ public class CommentService {
 
         Long workSpaceId = comment.getCard().getCardList().getBoard().getWorkspace().getId();
 
-        WorkspaceMember workspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userDetails.getUser().getId(), workSpaceId);
-
-
-        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(workspaceMember.getId(), workSpaceId)) {
+        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(workSpaceId, workSpaceId)) {
             throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
         }
 
@@ -103,16 +97,11 @@ public class CommentService {
 
         Comment comment = commentRepository.findByIdOrElseThrow(commentId);
 
-        Long workspaceId = comment.getCard().getCardList().getBoard().getWorkspace().getId();
-
-        WorkspaceMember workspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userDetails.getUser().getId(), workspaceId);
-
         Long workSpaceId = comment.getCard().getCardList().getBoard().getWorkspace().getId();
 
-        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(workspaceMember.getId(), workSpaceId)) {
+        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(workSpaceId, workSpaceId)) {
             throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
         }
-
 
         workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
 
