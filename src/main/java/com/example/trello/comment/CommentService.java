@@ -5,19 +5,26 @@ import com.example.trello.card.cardrepository.CardRepository;
 import com.example.trello.comment.dto.request.CommentRequestDto;
 import com.example.trello.comment.dto.request.UpdateCommentRequestDto;
 import com.example.trello.comment.dto.response.CommentResponseDto;
+import com.example.trello.common.exception.CommentErrorCoed;
+import com.example.trello.common.exception.CommentException;
 import com.example.trello.common.exception.WorkspaceMemberErrorCode;
 import com.example.trello.common.exception.WorkspaceMemberException;
 import com.example.trello.config.auth.UserDetailsImpl;
+import com.example.trello.notification.Notification;
+import com.example.trello.notification.NotificationService;
 import com.example.trello.user.User;
+import com.example.trello.workspace.WorkSpaceRepository;
 import com.example.trello.workspace.Workspace;
 import com.example.trello.workspace_member.WorkspaceMember;
 import com.example.trello.workspace_member.WorkspaceMemberRepository;
+import com.example.trello.workspace_member.WorkspaceMemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import static com.example.trello.notification.NotificationType.CREATE_COMMENT;
 import static com.example.trello.workspace_member.WorkspaceMemberRole.WORKSPACE;
 
 @Service
@@ -26,7 +33,9 @@ public class CommentService {
     private final CardRepository cardRepository;
     private final CommentRepository commentRepository;
     private final WorkspaceMemberRepository workspaceMemberRepository;
-
+    private final WorkspaceMemberService workspaceMemberService;
+    private final NotificationService notificationService;
+    private final WorkSpaceRepository workSpaceRepository;
 
     @Transactional
     public CommentResponseDto createComment(CommentRequestDto requestDto, UserDetailsImpl userDetails) {
@@ -42,9 +51,9 @@ public class CommentService {
         }
 
 
-        if (workspaceMember.getRole() != WORKSPACE) {
-            throw new RuntimeException("댓글을 생성할 권한이 없습니다.");
-        }
+        Long workSpaceId = card.getCardList().getBoard().getWorkspace().getId();
+
+        workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
 
         Comment comment = Comment.builder()
                 .content(requestDto.getContent())
@@ -55,6 +64,9 @@ public class CommentService {
 
         commentRepository.save(comment);
 
+        Workspace workSpace = workSpaceRepository.findByIdOrElseThrow(workspaceId);
+
+        notificationService.sendSlack(CREATE_COMMENT, workSpace);
         return CommentResponseDto.toDto(comment);
     }
 
@@ -63,21 +75,19 @@ public class CommentService {
 
         Comment comment = commentRepository.findByIdOrElseThrow(commentId);
 
-        Long workspaceId = comment.getCard().getCardList().getBoard().getWorkspace().getId();
+        Long workSpaceId = comment.getCard().getCardList().getBoard().getWorkspace().getId();
 
-        WorkspaceMember workspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userDetails.getUser().getId(), workspaceId);
+        WorkspaceMember workspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userDetails.getUser().getId(), workSpaceId);
 
-        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(workspaceMember.getId(), comment.getCard().getCardList().getBoard().getWorkspace().getId())) {
+
+        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(workspaceMember.getId(), workSpaceId)) {
             throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
         }
 
-
-        if (workspaceMember.getRole() != WORKSPACE) {
-            throw new RuntimeException("댓글을 수정할 권한이 없습니다.");
-        }
+        workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
 
         if (!userDetails.getUser().getId().equals(comment.getWorkspaceMember().getUser().getId())) {
-            throw new RuntimeException();
+            throw new CommentException(CommentErrorCoed.CANNOT_BE_MODIFIED);
         }
 
         comment.updateComment(requestDto.getContent());
@@ -97,16 +107,17 @@ public class CommentService {
 
         WorkspaceMember workspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userDetails.getUser().getId(), workspaceId);
 
-        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(workspaceMember.getId(), comment.getCard().getCardList().getBoard().getWorkspace().getId())) {
+        Long workSpaceId = comment.getCard().getCardList().getBoard().getWorkspace().getId();
+
+        if (!workspaceMemberRepository.existsByUserIdAndWorkspaceId(workspaceMember.getId(), workSpaceId)) {
             throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
         }
 
-        if (workspaceMember.getRole() != WORKSPACE) {
-            throw new RuntimeException("댓글을 삭제할 권한이 없습니다.");
-        }
+
+        workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
 
         if (!userDetails.getUser().getId().equals(comment.getWorkspaceMember().getUser().getId())) {
-            throw new RuntimeException();
+            throw new CommentException(CommentErrorCoed.CANNOT_BE_MODIFIED);
         }
 
         commentRepository.delete(comment);
