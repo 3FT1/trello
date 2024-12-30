@@ -6,6 +6,8 @@ import com.example.trello.cardlist.dto.CardListResponseDto;
 import com.example.trello.cardlist.dto.CreateCardListRequestDto;
 import com.example.trello.cardlist.dto.UpdateCardListRequestDto;
 import com.example.trello.common.exception.CardListException;
+import com.example.trello.user.User;
+import com.example.trello.workspace_member.WorkspaceMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,12 +22,14 @@ public class CardListService {
 
     private final CardListRepository cardListRepository;
     private final BoardRepository boardRepository;
+    private final WorkspaceMemberService workspaceMemberService;
 
     private Integer maxSequence; // 보드에서 가장 큰 순서
 
     @Transactional
-    public CardListResponseDto create(CreateCardListRequestDto requestDto) {
+    public CardListResponseDto create(CreateCardListRequestDto requestDto, User user) {
         Board board = boardRepository.findByIdOrElseThrow(requestDto.getBoardId());
+        workspaceMemberService.checkReadRole(user.getId(), board.getWorkspace().getId());
         maxSequence = cardListRepository.findByMax(board.getId()).orElse(0);
         CardList cardList = requestDto.toEntity(requestDto, board, ++maxSequence);
         CardList savedCardList = cardListRepository.save(cardList);
@@ -40,8 +44,10 @@ public class CardListService {
     }
 
     @Transactional
-    public CardListResponseDto moveSequence(Long id, UpdateCardListRequestDto requestDto) {
+    public CardListResponseDto moveSequence(Long id, UpdateCardListRequestDto requestDto, User user) {
         CardList cardList = cardListRepository.findByIdOrElseThrow(id);
+        Board board = cardList.getBoard();
+        workspaceMemberService.checkReadRole(user.getId(), board.getWorkspace().getId());
         Integer currentSequence = cardList.getSequence();
         List<CardList> cardLists = cardListRepository.findAllByBoardId(cardList.getBoard().getId());
 
@@ -68,8 +74,10 @@ public class CardListService {
     }
 
     @Transactional
-    public CardListResponseDto swapSequence(Long id, UpdateCardListRequestDto requestDto) {
+    public CardListResponseDto swapSequence(Long id, UpdateCardListRequestDto requestDto, User user) {
         CardList cardList = cardListRepository.findByIdOrElseThrow(id);
+        Board board = cardList.getBoard();
+        workspaceMemberService.checkReadRole(user.getId(), board.getWorkspace().getId());
         CardList exchangeCardList = cardListRepository.findBySequenceAndBoardIdOrElseThrow(requestDto.getSequence(), cardList.getBoard().getId());
         Integer temp = cardList.getSequence();
         cardList.update(requestDto, exchangeCardList.getSequence());
@@ -80,10 +88,11 @@ public class CardListService {
 
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(Long id, User user) {
 
         CardList cardList = cardListRepository.findByIdOrElseThrow(id);
-        Board board = boardRepository.findByIdOrElseThrow(cardList.getBoard().getId());
+        Board board = cardList.getBoard();
+        workspaceMemberService.checkReadRole(user.getId(), board.getWorkspace().getId());
         Integer deleteSequence = cardList.getSequence();
         cardListRepository.delete(cardList);
         List<CardList> cardLists = cardListRepository.findAllByBoardId(board.getId());
