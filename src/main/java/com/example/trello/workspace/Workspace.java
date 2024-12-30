@@ -23,6 +23,9 @@ public class Workspace {
     @Column(name = "description", nullable = false)
     private String description;
 
+    @Column(name = "slack_url")
+    private String slackUrl;
+
     @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Board> boards;
 
@@ -36,14 +39,16 @@ public class Workspace {
     }
 
     @Builder
-    public Workspace(String title, String description, User user) {
+    public Workspace(String title, String description, String slackUrl, User user) {
         this.title = title;
         this.description = description;
+        this.slackUrl = slackUrl;
         this.user = user;
     }
 
-    public void updateWorkspace(String title, String description) {
+    public void updateWorkspace(String title, String description, String slackUrl) {
         this.title = title;
         this.description = description;
+        this.slackUrl = slackUrl;
     }
 }

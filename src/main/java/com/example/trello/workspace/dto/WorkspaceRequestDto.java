@@ -14,8 +14,11 @@ public class WorkspaceRequestDto {
     @Size(min = 1, max = 255, message = "title 크기는 1에서 255사이여야합니다.")
     private String description;
 
-    public WorkspaceRequestDto(String title, String description) {
+    private String slackUrl;
+
+    public WorkspaceRequestDto(String title, String description, String slackUrl) {
         this.title = title;
         this.description = description;
+        this.slackUrl = slackUrl;
     }
 }
