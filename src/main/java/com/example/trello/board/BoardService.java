@@ -132,7 +132,7 @@ public class BoardService {
             amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
             return fileName;
         } catch (IOException e) {
-            throw new RuntimeException("파일 업로드에 실패했습니다.", e);
+            throw new BoardException(BoardErrorCode.FAILED_IMAGE_UPLOAD);
         }
     }
 
@@ -141,7 +141,7 @@ public class BoardService {
             String fileName = image.substring(24);
             amazonS3Client.deleteObject(bucket, fileName);
         } catch (SdkClientException e) {
-            throw new RuntimeException("Error deleting file from S3", e);
+            throw new BoardException(BoardErrorCode.FAILED_IMAGE_DELETE);
         }
     }
 
