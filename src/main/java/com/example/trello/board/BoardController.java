@@ -17,9 +17,9 @@ import java.util.List;
 public class BoardController {
     private final BoardService boardService;
 
-    @PostMapping // 추가
+    @PostMapping
     public ResponseEntity<BoardResponseDto> createBoard(
-            @Valid @ModelAttribute BoardRequestDto dto, // 수정
+            @Valid @ModelAttribute BoardRequestDto dto,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         BoardResponseDto boardResponseDto = boardService.createBoard(dto, userDetails.getUser().getId());
@@ -45,8 +45,8 @@ public class BoardController {
     }
 
     @DeleteMapping("/{boardId}")
-    public String deleteBoard(@PathVariable Long boardId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<String> deleteBoard(@PathVariable Long boardId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         boardService.deleteBoard(boardId, userDetails.getUser().getId());
-        return "보드가 정상적으로 삭제되었습니다.";
+        return new ResponseEntity<>("보드가 정상적으로 삭제되었습니다.", HttpStatus.OK);
     }
 }

@@ -25,8 +25,8 @@ public class WorkspaceMemberController {
     }
 
     @PatchMapping("/member-role")
-    public String updateWorkspaceUserRole(@PathVariable Long workspaceId, @Valid @RequestBody UpdateWorkspaceMemberRoleDto dto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<String> updateWorkspaceUserRole(@PathVariable Long workspaceId, @Valid @RequestBody UpdateWorkspaceMemberRoleDto dto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         workspaceMemberService.updateWorkspaceMemberRole(workspaceId, dto, userDetails.getUser().getId());
-        return "권한이 " + dto.getRole() + "로 변경되었습니다.";
+        return new ResponseEntity<>("권한이 " + dto.getRole() + "로 변경되었습니다.", HttpStatus.OK);
     }
 }

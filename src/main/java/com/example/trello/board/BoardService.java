@@ -42,10 +42,10 @@ public class BoardService {
     @Transactional
     public BoardResponseDto createBoard(BoardRequestDto dto, Long loginUserId) {
         workspaceMemberService.checkReadRole(loginUserId, dto.getWorkspaceId());
-        isValidBoardImage(dto.getFile());
 
         String imageUrl = null;
-        if(dto.getFile() != null && !dto.getFile().isEmpty()) {
+        if (dto.getFile() != null && !dto.getFile().isEmpty()) {
+            isValidBoardImage(dto.getFile());
             imageUrl = uploadFileToS3(dto.getFile());
         }
 
