@@ -7,7 +7,9 @@
 
 name: Gradle Package
 
-on: [push]
+on: 
+  push:
+    branches: [ main ]
 
   # https://github.com/marketplace/actions/build-and-push-docker-images
 jobs:
