@@ -17,7 +17,10 @@ import com.example.trello.common.exception.CardException;
 import com.example.trello.common.exception.WorkspaceMemberErrorCode;
 import com.example.trello.common.exception.WorkspaceMemberException;
 import com.example.trello.config.auth.UserDetailsImpl;
+import com.example.trello.notification.NotificationService;
 import com.example.trello.util.FileUploadUtil;
+import com.example.trello.workspace.WorkSpaceRepository;
+import com.example.trello.workspace.Workspace;
 import com.example.trello.workspace_member.WorkspaceMember;
 import com.example.trello.workspace_member.WorkspaceMemberRepository;
 import com.example.trello.workspace_member.WorkspaceMemberService;
@@ -38,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import static com.example.trello.notification.NotificationType.UPDATE_CARD;
 import static com.example.trello.util.FileUploadUtil.isAllowedExtension;
 import static com.example.trello.workspace_member.WorkspaceMemberRole.WORKSPACE;
 
@@ -50,6 +54,8 @@ public class CardService {
     private final WorkspaceMemberRepository workspaceMemberRepository;
     private final AmazonS3Client amazonS3Client;
     private final WorkspaceMemberService workspaceMemberService;
+    private final NotificationService notificationService;
+    private final WorkSpaceRepository workSpaceRepository;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
@@ -110,6 +116,10 @@ public class CardService {
         card.updateCard(responseDto);
 
         cardRepository.save(card);
+
+
+
+        notificationService.sendSlack(UPDATE_CARD, card.getCardList().getBoard().getWorkspace());
 
         return CardResponseDto.toDto(card);
     }
