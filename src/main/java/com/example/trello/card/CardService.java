@@ -184,8 +184,6 @@ public class CardService {
         }
 
 
-
-
         // 파일 크기 예외처리
         long maxSize = 5 * 1024 * 1024;
 
@@ -223,24 +221,25 @@ public class CardService {
             throw new RuntimeException("파일을 삭제할 권한이 없습니다.");
         }
 
-        if (card.getFileName() == null) {
-            throw new RuntimeException();
-        }
+//        if (card.getFileName() == null) {
+//            throw new RuntimeException();
+//        }
 
+        card.deleteFile();
         amazonS3Client.deleteObject(bucketName, fileName);
     }
 
-//    @Transactional
-//    public String getFile(Long cardId, UserDetailsImpl userDetails) {
-//        Card card = cardRepository.findByIdOrElseThrow(cardId); // 카드 정보 가져오기
-//        if (card == null || !fileName.equals(card.getAttachmentUrl())) {
-//            return ResponseEntity.status(404).body("File not found for this card.");
-//        }
-//
-//        // S3에서 파일 URL 조회
-//        String fileUrl = s3Service.getFileUrlByName(fileName);
-//        return ResponseEntity.ok(fileUrl);
-//    }
+    @Transactional
+    public String getFile(Long cardId, UserDetailsImpl userDetails) {
+
+        Card card = cardRepository.findByIdOrElseThrow(cardId);
+
+        try {
+            return amazonS3Client.getUrl(bucketName, card.getFileName()).toString();
+        } catch (Exception e) {
+            throw new RuntimeException("File not found: " + card.getFileName(), e);
+        }
+    }
 
 
     /**

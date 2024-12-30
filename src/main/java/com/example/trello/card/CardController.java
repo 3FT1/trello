@@ -1,5 +1,6 @@
 package com.example.trello.card;
 
+import com.example.trello.card.requestDto.FileNameRequestDto;
 import com.example.trello.card.responsedto.CardPageResponseDto;
 import com.example.trello.card.requestDto.CardRequestDto;
 import com.example.trello.card.responsedto.CardResponseDto;
@@ -69,7 +70,7 @@ public class CardController {
      * 파일 업로드
      */
 
-    @PostMapping(value = "/{cardId}/addAttachment", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{cardId}/attachment", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadAttachments(@PathVariable Long cardId,
                                                      @RequestPart("file") MultipartFile file,
                                                      @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -77,18 +78,18 @@ public class CardController {
         return new ResponseEntity<>(fileUrl + "업로드 완료", HttpStatus.OK);
     }
 
-    @DeleteMapping("/{cardId}/deleteAttachment")
+    @DeleteMapping("/{cardId}/attachment")
     public ResponseEntity<String> deleteFile(@PathVariable Long cardId,
-                                              @RequestBody String fileName,
-                                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        cardService.deleteFile(cardId, fileName, userDetails);
+                                             @RequestBody FileNameRequestDto requestDto,
+                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        cardService.deleteFile(cardId, requestDto.getFileName(), userDetails);
         return new ResponseEntity<>("삭제 완료되었습니다", HttpStatus.OK);
     }
 
-//    @GetMapping("/{cardId}/getAttachment")
-//    public ResponseEntity<String> getFileUrl(@PathVariable Long cardId,
-//                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-//        return new ResponseEntity<>(cardService.getFile(cardId, userDetails), HttpStatus.OK);
-//
-//    }
+    @GetMapping("/{cardId}/attachment")
+    public ResponseEntity<String> getFileUrl(@PathVariable Long cardId,
+                                             @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return new ResponseEntity<>(cardService.getFile(cardId, userDetails), HttpStatus.OK);
+
+    }
 }

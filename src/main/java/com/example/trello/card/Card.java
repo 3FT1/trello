@@ -76,6 +76,10 @@ public class Card {
         this.fileName = fileName;
     }
 
+    public void deleteFile () {
+        this.fileName = null;
+    }
+
 
 
 }
