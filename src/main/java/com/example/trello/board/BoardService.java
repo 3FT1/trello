@@ -138,8 +138,7 @@ public class BoardService {
 
     public void deleteFile(String image) {
         try {
-            String fileName = image.substring(24);
-            amazonS3Client.deleteObject(bucket, fileName);
+            amazonS3Client.deleteObject(bucket, image);
         } catch (SdkClientException e) {
             throw new BoardException(BoardErrorCode.FAILED_IMAGE_DELETE);
         }
