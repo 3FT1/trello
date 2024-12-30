@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
 @Getter
-public enum CommentErrorCoed {
+public enum CommentErrorCode {
 
     CANNOT_BE_MODIFIED("댓글 수정은 작성자만 가능합니다", HttpStatus.FORBIDDEN);
 

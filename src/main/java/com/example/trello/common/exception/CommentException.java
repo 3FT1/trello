@@ -6,5 +6,5 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class CommentException extends RuntimeException {
-    private CommentErrorCoed commentErrorCoed;
+    private CommentErrorCode commentErrorCode;
 }
