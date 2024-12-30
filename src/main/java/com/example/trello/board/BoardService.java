@@ -104,7 +104,8 @@ public class BoardService {
         deleteFile(findBoard.getImage());
 
         String imageUrl = null;
-        if(dto.getFile() != null && !dto.getFile().isEmpty()) {
+        if (dto.getFile() != null && !dto.getFile().isEmpty()) {
+            isValidBoardImage(dto.getFile());
             imageUrl = uploadFileToS3(dto.getFile());
         }
 
