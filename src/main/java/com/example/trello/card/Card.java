@@ -68,6 +68,7 @@ public class Card {
         this.cardList = responseDto.getCardList();
         this.title = responseDto.getTitle();
         this.description = responseDto.getDescription();
+        this.workspaceMember = responseDto.getWorkspaceMember();
         this.startAt = responseDto.getStartAt();
         this.endAt = responseDto.getEndAt();
     }

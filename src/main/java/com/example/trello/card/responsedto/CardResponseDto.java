@@ -21,6 +21,8 @@ public class CardResponseDto {
 
     private String description;
 
+    private Long workspaceMemberId;
+
     @JsonFormat(pattern = "yyyy-MM-dd")
     LocalDate startAt;
 
@@ -28,11 +30,12 @@ public class CardResponseDto {
     LocalDate endAt;
 
 
-    public CardResponseDto(Long cardListId, Long cardId, String title, String description, LocalDate startAt, LocalDate endAt) {
+    public CardResponseDto(Long cardListId, Long cardId, String title, String description, Long workspaceMemberId, LocalDate startAt, LocalDate endAt) {
         this.cardListId = cardListId;
         this.cardId = cardId;
         this.title = title;
         this.description = description;
+        this.workspaceMemberId = workspaceMemberId;
         this.startAt = startAt;
         this.endAt =endAt;
     }
@@ -43,6 +46,7 @@ public class CardResponseDto {
         card.getId(),
         card.getTitle(),
         card.getDescription(),
+        card.getWorkspaceMember().getId(),
         card.getStartAt(),
         card.getEndAt());
     }
