@@ -49,6 +49,9 @@ dependencies {
 
     //Slack
     implementation 'com.slack.api:slack-api-client:1.27.2'
+
+    // Apache Commons IO 라이브러리
+    implementation 'commons-io:commons-io:2.11.0'
 }
 
 tasks.named('test') {
