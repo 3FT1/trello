@@ -104,7 +104,8 @@ public class BoardService {
         deleteFile(findBoard.getImage());
 
         String imageUrl = null;
-        if(dto.getFile() != null && !dto.getFile().isEmpty()) {
+        if (dto.getFile() != null && !dto.getFile().isEmpty()) {
+            isValidBoardImage(dto.getFile());
             imageUrl = uploadFileToS3(dto.getFile());
         }
 
@@ -125,23 +126,21 @@ public class BoardService {
     private String uploadFileToS3(MultipartFile file) {
         try {
             String fileName = file.getOriginalFilename();
-            String fileUrl = "https://" + bucket + "/test" + fileName;
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(file.getContentType());
             metadata.setContentLength(file.getSize());
             amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
-            return fileUrl;
+            return fileName;
         } catch (IOException e) {
-            throw new RuntimeException("파일 업로드에 실패했습니다.", e);
+            throw new BoardException(BoardErrorCode.FAILED_IMAGE_UPLOAD);
         }
     }
 
     public void deleteFile(String image) {
         try {
-            String fileName = image.substring(24);
-            amazonS3Client.deleteObject(bucket, fileName);
+            amazonS3Client.deleteObject(bucket, image);
         } catch (SdkClientException e) {
-            throw new RuntimeException("Error deleting file from S3", e);
+            throw new BoardException(BoardErrorCode.FAILED_IMAGE_DELETE);
         }
     }
 
