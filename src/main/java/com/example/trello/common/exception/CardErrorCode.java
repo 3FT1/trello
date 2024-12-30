@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
 @Getter
-public enum CardErrorCoed {
+public enum CardErrorCode {
 
     CARD_NOT_FOUND("카드를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     FORMAT_NOT_SUPPORTED("지원하지 않는 형식입니다", HttpStatus.BAD_REQUEST),

@@ -2,9 +2,7 @@ package com.example.trello.card;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.S3Object;
 import com.example.trello.card.cardrepository.CardRepository;
-import com.example.trello.card.cardrepository.CardRepositoryCustomImpl;
 import com.example.trello.card.responsedto.CardPageResponseDto;
 import com.example.trello.card.requestDto.CardRequestDto;
 import com.example.trello.card.responsedto.CardResponseDto;
@@ -12,15 +10,13 @@ import com.example.trello.card.requestDto.UpdateCardRequestDto;
 import com.example.trello.card.responsedto.UpdateCardResponseDto;
 import com.example.trello.cardlist.CardList;
 import com.example.trello.cardlist.CardListRepository;
-import com.example.trello.common.exception.CardErrorCoed;
+import com.example.trello.common.exception.CardErrorCode;
 import com.example.trello.common.exception.CardException;
 import com.example.trello.common.exception.WorkspaceMemberErrorCode;
 import com.example.trello.common.exception.WorkspaceMemberException;
 import com.example.trello.config.auth.UserDetailsImpl;
 import com.example.trello.notification.NotificationService;
-import com.example.trello.util.FileUploadUtil;
 import com.example.trello.workspace.WorkSpaceRepository;
-import com.example.trello.workspace.Workspace;
 import com.example.trello.workspace_member.WorkspaceMember;
 import com.example.trello.workspace_member.WorkspaceMemberRepository;
 import com.example.trello.workspace_member.WorkspaceMemberService;
@@ -29,21 +25,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 
 import static com.example.trello.notification.NotificationType.UPDATE_CARD;
 import static com.example.trello.util.FileUploadUtil.isAllowedExtension;
-import static com.example.trello.workspace_member.WorkspaceMemberRole.WORKSPACE;
 
 @Service
 @RequiredArgsConstructor
@@ -185,7 +176,7 @@ public class CardService {
 
         // 파일 형식 예외처리
         if (!isAllowedExtension(file.getOriginalFilename())) {
-            throw new CardException(CardErrorCoed.FORMAT_NOT_SUPPORTED);
+            throw new CardException(CardErrorCode.FORMAT_NOT_SUPPORTED);
         }
 
 
@@ -193,7 +184,7 @@ public class CardService {
         long maxSize = 5 * 1024 * 1024;
 
         if (file.getSize() > maxSize) {
-            throw new CardException(CardErrorCoed.FILE_SIZE_EXCEEDED);
+            throw new CardException(CardErrorCode.FILE_SIZE_EXCEEDED);
         }
 
         String fileName = file.getOriginalFilename();
@@ -245,9 +236,6 @@ public class CardService {
             throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
         }
 
-        Long workSpaceId = card.getCardList().getBoard().getWorkspace().getId();
-
-        workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
 
         try {
             return amazonS3Client.getUrl(bucketName, card.getFileName()).toString();

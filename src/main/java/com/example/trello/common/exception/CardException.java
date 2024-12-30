@@ -6,5 +6,5 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class CardException extends RuntimeException {
-    private CardErrorCoed errorCoed;
+    private CardErrorCode errorCoed;
 }
