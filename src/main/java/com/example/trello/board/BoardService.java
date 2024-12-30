@@ -42,7 +42,10 @@ public class BoardService {
     @Transactional
     public BoardResponseDto createBoard(BoardRequestDto dto, Long loginUserId) {
         workspaceMemberService.CheckReadRole(loginUserId, dto.getWorkspaceId());
-        isValidBoardImage(dto.getFile());
+
+        if (dto.getFile() != null) {
+            isValidBoardImage(dto.getFile());
+        }
 
         String imageUrl = null;
         if(dto.getFile() != null && !dto.getFile().isEmpty()) {
