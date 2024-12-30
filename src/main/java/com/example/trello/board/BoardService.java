@@ -126,12 +126,11 @@ public class BoardService {
     private String uploadFileToS3(MultipartFile file) {
         try {
             String fileName = file.getOriginalFilename();
-            String fileUrl = "https://" + bucket + "/test" + fileName;
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(file.getContentType());
             metadata.setContentLength(file.getSize());
             amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
-            return fileUrl;
+            return fileName;
         } catch (IOException e) {
             throw new RuntimeException("파일 업로드에 실패했습니다.", e);
         }
