@@ -17,9 +17,9 @@ import java.util.List;
 public class BoardController {
     private final BoardService boardService;
 
-    @PostMapping // 추가
+    @PostMapping
     public ResponseEntity<BoardResponseDto> createBoard(
-            @Valid @ModelAttribute BoardRequestDto dto, // 수정
+            @Valid @ModelAttribute BoardRequestDto dto,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         BoardResponseDto boardResponseDto = boardService.createBoard(dto, userDetails.getUser().getId());
