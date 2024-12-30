@@ -71,7 +71,7 @@ public class CardService {
 
         Long workSpaceId = cardList.getBoard().getWorkspace().getId();
 
-        workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
+        workspaceMemberService.checkReadRole(userDetails.getUser().getId(), workSpaceId);
 
         Card card = Card.builder()
                 .title(requestDto.getTitle())
@@ -102,7 +102,7 @@ public class CardService {
         }
 
         Long workSpaceId = card.getCardList().getBoard().getWorkspace().getId();
-        workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
+        workspaceMemberService.checkReadRole(userDetails.getUser().getId(), workSpaceId);
 
         card.updateCard(responseDto);
 
@@ -128,7 +128,7 @@ public class CardService {
 
         Long workSpaceId = card.getCardList().getBoard().getWorkspace().getId();
 
-        workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
+        workspaceMemberService.checkReadRole(userDetails.getUser().getId(), workSpaceId);
 
         cardRepository.delete(card);
     }
@@ -170,7 +170,7 @@ public class CardService {
             throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
         }
 
-        workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
+        workspaceMemberService.checkReadRole(userDetails.getUser().getId(), workSpaceId);
 
         // 파일 형식 예외처리
         if (!isAllowedExtension(file.getOriginalFilename())) {
@@ -211,7 +211,7 @@ public class CardService {
             throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
         }
 
-        workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
+        workspaceMemberService.checkReadRole(userDetails.getUser().getId(), workSpaceId);
 
         if (!card.getFileName().equals(fileName)) {
             throw new RuntimeException();

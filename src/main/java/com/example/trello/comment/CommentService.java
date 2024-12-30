@@ -41,7 +41,7 @@ public class CommentService {
 
         WorkspaceMember workspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userDetails.getUser().getId(), workSpaceId);
 
-        workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
+        workspaceMemberService.checkReadRole(userDetails.getUser().getId(), workSpaceId);
 
         Comment comment = Comment.builder()
                 .content(requestDto.getContent())
@@ -69,7 +69,7 @@ public class CommentService {
             throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
         }
 
-        workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
+        workspaceMemberService.checkReadRole(userDetails.getUser().getId(), workSpaceId);
 
         if (!userDetails.getUser().getId().equals(comment.getWorkspaceMember().getUser().getId())) {
             throw new CommentException(CommentErrorCode.CANNOT_BE_MODIFIED);
@@ -94,7 +94,7 @@ public class CommentService {
             throw new WorkspaceMemberException(WorkspaceMemberErrorCode.IS_NOT_WORKSPACEMEMBER);
         }
 
-        workspaceMemberService.CheckReadRole(userDetails.getUser().getId(), workSpaceId);
+        workspaceMemberService.checkReadRole(userDetails.getUser().getId(), workSpaceId);
 
         if (!userDetails.getUser().getId().equals(comment.getWorkspaceMember().getUser().getId())) {
             throw new CommentException(CommentErrorCode.CANNOT_BE_MODIFIED);

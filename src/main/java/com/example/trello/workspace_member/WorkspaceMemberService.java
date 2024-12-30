@@ -78,7 +78,7 @@ public class WorkspaceMemberService {
         log.info("{}의 역할이 {}로 변경되었습니다.", roleUpdatedWorkspaceMember.getUser().getNickname(), dto.getRole());
     }
 
-    public void CheckReadRole(Long userId,Long workspaceId) {
+    public void checkReadRole(Long userId, Long workspaceId) {
         WorkspaceMember workspaceMember = workspaceMemberRepository.findByUserIdAndWorkspaceIdOrElseThrow(userId, workspaceId);
         if(workspaceMember.getRole()==READ_ONLY) {
             throw  new WorkspaceMemberException(CAN_NOT_READ_ROLE);
