@@ -106,6 +106,10 @@ public class BoardService {
         workspaceMemberService.CheckReadRole(loginUserId, findBoard.getWorkspace().getId());
         deleteFile(findBoard.getImage());
 
+        if (dto.getFile() != null) {
+            isValidBoardImage(dto.getFile());
+        }
+
         String imageUrl = null;
         if(dto.getFile() != null && !dto.getFile().isEmpty()) {
             imageUrl = uploadFileToS3(dto.getFile());
