@@ -41,8 +41,7 @@ public class BoardService {
 
     @Transactional
     public BoardResponseDto createBoard(BoardRequestDto dto, Long loginUserId) {
-        workspaceMemberService.CheckReadRole(loginUserId, dto.getWorkspaceId());
-
+        workspaceMemberService.checkReadRole(loginUserId, dto.getWorkspaceId());
         if (dto.getFile() != null) {
             isValidBoardImage(dto.getFile());
         }
@@ -105,10 +104,6 @@ public class BoardService {
         Board findBoard = boardRepository.findByIdOrElseThrow(boardId);
         workspaceMemberService.CheckReadRole(loginUserId, findBoard.getWorkspace().getId());
         deleteFile(findBoard.getImage());
-
-        if (dto.getFile() != null) {
-            isValidBoardImage(dto.getFile());
-        }
 
         String imageUrl = null;
         if(dto.getFile() != null && !dto.getFile().isEmpty()) {

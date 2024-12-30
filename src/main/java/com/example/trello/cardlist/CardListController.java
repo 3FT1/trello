@@ -3,9 +3,11 @@ package com.example.trello.cardlist;
 import com.example.trello.cardlist.dto.CardListResponseDto;
 import com.example.trello.cardlist.dto.CreateCardListRequestDto;
 import com.example.trello.cardlist.dto.UpdateCardListRequestDto;
+import com.example.trello.config.auth.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,8 +18,8 @@ public class CardListController {
     private final CardListService cardListService;
 
     @PostMapping
-    public ResponseEntity<CardListResponseDto> createCardList(@RequestBody CreateCardListRequestDto requestDto) {
-        CardListResponseDto cardListResponseDto = cardListService.create(requestDto);
+    public ResponseEntity<CardListResponseDto> createCardList(@RequestBody CreateCardListRequestDto requestDto,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        CardListResponseDto cardListResponseDto = cardListService.create(requestDto,userDetails.getUser());
         return new ResponseEntity<>(cardListResponseDto, HttpStatus.CREATED);
     }
 
@@ -28,22 +30,22 @@ public class CardListController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<CardListResponseDto> updateCardList(@PathVariable Long id, @RequestBody UpdateCardListRequestDto requestDto) {
-        CardListResponseDto cardListResponseDto = cardListService.moveSequence(id, requestDto);
+    public ResponseEntity<CardListResponseDto> updateCardList(@PathVariable Long id, @RequestBody UpdateCardListRequestDto requestDto,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        CardListResponseDto cardListResponseDto = cardListService.moveSequence(id, requestDto,userDetails.getUser());
         return new ResponseEntity<>(cardListResponseDto, HttpStatus.OK);
 
     }
 
     @PatchMapping("/{id}/exchange")
-    public ResponseEntity<CardListResponseDto> swapCardList(@PathVariable Long id, @RequestBody UpdateCardListRequestDto requestDto) {
-        CardListResponseDto cardListResponseDto = cardListService.swapSequence(id, requestDto);
+    public ResponseEntity<CardListResponseDto> swapCardList(@PathVariable Long id, @RequestBody UpdateCardListRequestDto requestDto,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        CardListResponseDto cardListResponseDto = cardListService.swapSequence(id, requestDto,userDetails.getUser());
         return new ResponseEntity<>(cardListResponseDto, HttpStatus.OK);
 
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCardList(@PathVariable Long id) {
-        cardListService.delete(id);
+    public ResponseEntity<Void> deleteCardList(@PathVariable Long id,@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        cardListService.delete(id,userDetails.getUser());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
